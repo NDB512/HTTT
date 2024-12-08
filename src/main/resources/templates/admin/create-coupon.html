@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="https://www.thymeleaf.org" th:replace="~{base::layout(~{::section})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo Coupon Mới</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <section>
+        <div class="container mt-5">
+            <h2>Tạo Coupon Mới</h2>
+            <form th:action="@{/admin/save-coupon}" th:object="${couponDto}" method="post">
+                <div class="form-group">
+                    <label for="code">Mã Coupon</label>
+                    <input type="text" id="code" class="form-control" th:field="*{code}" placeholder="Nhập mã coupon">
+                </div>
+                <div class="form-group">
+                    <label for="discountAmount">Giảm Giá (Số tiền)</label>
+                    <input type="number" id="discountAmount" class="form-control" th:field="*{discountAmount}" placeholder="Nhập giá trị giảm giá">
+                </div>
+                <div class="form-group">
+                    <label for="discountPercentage">Giảm Giá (%)</label>
+                    <input type="number" id="discountPercentage" class="form-control" th:field="*{discountPercentage}" placeholder="Nhập phần trăm giảm giá">
+                </div>
+                <div class="form-group">
+                    <label for="startDate">Ngày Bắt Đầu</label>
+                    <input type="datetime-local" id="startDate" class="form-control" th:field="*{startDate}">
+                </div>
+                <div class="form-group">
+                    <label for="endDate">Ngày Kết Thúc</label>
+                    <input type="datetime-local" id="endDate" class="form-control" th:field="*{endDate}">
+                </div>                             
+                <div class="form-group">
+                    <label for="usageLimit">Số Lượng Sử Dụng Tối Đa</label>
+                    <input type="number" id="usageLimit" class="form-control" th:field="*{usageLimit}">
+                </div>
+                <div class="form-group">
+                    <label for="minimumOrderAmount">Giá Trị Đơn Hàng Tối Thiểu</label>
+                    <input type="number" id="minimumOrderAmount" class="form-control" th:field="*{minimumOrderAmount}">
+                </div>
+                <div class="form-group">
+                    <label for="status">Trạng Thái</label>
+                    <select id="status" class="form-control" th:field="*{status}">
+                        <option value="ACTIVE">Hoạt động</option>
+                        <option value="INACTIVE">Không hoạt động</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Lưu Coupon</button>
+            </form>
+        </div>
+    </section>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const startDateInput = document.getElementById("startDate");
+            const endDateInput = document.getElementById("endDate");
+    
+            startDateInput.addEventListener("change", function () {
+                const startDateValue = new Date(startDateInput.value);
+                if (isNaN(startDateValue)) return;
+    
+                // Tự động thêm 1 ngày và thiết lập giờ là 23:59:59
+                const endDateValue = new Date(startDateValue);
+                endDateValue.setDate(endDateValue.getDate() + 1);
+                endDateValue.setHours(23, 59, 59);
+    
+                // Chuyển sang định dạng phù hợp với input[type="datetime-local"]
+                const formattedEndDate = endDateValue.toISOString().slice(0, 19);
+    
+                // Gán giá trị cho input Ngày Kết Thúc
+                endDateInput.value = formattedEndDate;
+            });
+        });
+    </script>    
+</body>
+</html>

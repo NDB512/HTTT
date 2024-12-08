@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="https://www.thymeleaf.org" th:replace="~{base::layout(~{::section})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <section>
+        <div class="container-fluid mt-5 p-5">
+            <div class="d-flex justify-content-between mb-3">
+                <!-- Nút Quay về -->
+                <a href="/admin/" class="btn btn-secondary">Quay về</a>
+
+                <!-- Nút Nhân viên-->
+                <a href="/admin/add-staff" class="btn btn-success">Thêm nhân viên</a>
+            </div>
+            <div class="card shadow">
+                <div class="card-header text-center">
+                    <p class="fs-4">Danh sách tài khoản</p>
+                    <!-- Thông báo thành công -->
+                    <th:block th:if="${session.succMsg}">
+                        <p class="text-success fw-bold" th:text="${session.succMsg}"></p>
+                        <div th:with="commonService=${@commonServiceImpl}">
+                            <div th:if="${commonService.removeSessionMessage()}"></div>
+                        </div>
+                    </th:block>
+
+                    <!-- Thông báo lỗi -->
+                    <th:block th:if="${session.errorMsg}">
+                        <p class="text-danger fw-bold" th:text="${session.errorMsg}"></p>
+                        <div th:with="commonService=${@commonServiceImpl}">
+                            <div th:if="${commonService.removeSessionMessage()}"></div>
+                        </div>                                
+                    </th:block>
+                    <div class="cart-body">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Thứ tự</th>
+                                    <th scope="col">Ảnh người dùng</th>
+                                    <th scope="col">Tên</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">SĐT</th>
+                                    <th scope="col">Trạng thái</th>
+                                    <th scope="col">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="u,c:${users}">
+                                    <th scope="row">[[${c.count}]]</th>
+                                    <td><img th:src="@{'/img/profile_img/'+${u.profileImage}}" height="120px" width="120px"></td>
+                                    <td>[[${u.name}]]</td>
+                                    <td>[[${u.email}]]</td>
+                                    <td>[[${u.phoneNumber}]]</td>
+                                    <td th:text="${u.isEnable ? 'Đang kích hoạt' : 'Không kích hoạt'}"></td>
+                                    <td>
+                                        <a th:href="@{/admin/updateSts(status=true, id=${u.id})}" class="btn btn-sm btn-primary">Kích hoạt</a>
+                                        <a th:href="@{/admin/updateSts(status=false, id=${u.id})}" class="btn btn-sm btn-danger">Không kích hoạt</a>
+                                    </td>                                    
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

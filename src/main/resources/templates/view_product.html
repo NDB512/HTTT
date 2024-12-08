@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="https://www.thymeleaf.org" th:replace="~{base::layout(~{::section})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- Thêm Bootstrap và các thư viện cần thiết -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Nút đóng */
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 35px;
+            color: #333;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .close-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Hình ảnh sản phẩm */
+        .product-image {
+            object-fit: cover;
+            height: 400px;
+            border-radius: 8px;
+        }
+
+        /* Thẻ chứa thông tin sản phẩm */
+        .product-info p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        /* Tiêu đề sản phẩm */
+        .product-info .fs-3 {
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        /* Thẻ giá sản phẩm */
+        .product-info .price {
+            font-size: 24px;
+            font-weight: 600;
+            color: #e74c3c;
+            margin-top: 15px;
+        }
+
+        .product-info .price .text-secondary {
+            text-decoration: line-through;
+        }
+
+        .product-info .badge {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .product-info .btn {
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .product-info .btn-danger {
+            background-color: #e74c3c;
+            border: none;
+        }
+
+        .product-info .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        .product-info .btn-warning {
+            background-color: #f39c12;
+            border: none;
+        }
+
+        .product-info .btn-warning:hover {
+            background-color: #e67e22;
+        }
+
+        /* Hiển thị các thông tin phụ như thanh toán và đổi trả */
+        .row.mb-3 {
+            margin-top: 25px;
+        }
+
+        .row.mb-3 .col-md-4 {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .row.mb-3 .col-md-4:hover {
+            transform: scale(1.05);
+        }
+
+        /* Phần sản phẩm liên quan */
+        h4.text-center {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 50px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            border: none;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-img-top {
+            object-fit: cover;
+            height: 250px;
+            border-bottom: 1px solid #f1f1f1;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .card-body p {
+            font-size: 16px;
+            color: #555;
+        }
+
+        .card .btn {
+            background-color: #3498db;
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .card .btn:hover {
+            background-color: #2980b9;
+        }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .product-image {
+                height: 250px;
+            }
+
+            .product-info .fs-3 {
+                font-size: 20px;
+            }
+
+            .product-info .price {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section>
+        <div class="container shadow position-relative" style="margin-top: 70px; margin-bottom: 100px;">
+            <button class="close-btn" onclick="window.location.href='/products';">&times;</button>
+            <div class="col-md-12 p-5">
+                <div class="row">
+                    <!-- Thông báo thành công -->
+                    <th:block th:if="${session.succMsg}">
+                        <p class="text-success alert alert-success text-center" th:text="${session.succMsg}"></p>
+                        <div th:with="commonService=${@commonServiceImpl}">
+                            <div th:if="${commonService.removeSessionMessage()}"></div>
+                        </div>
+                    </th:block>
+
+                    <!-- Thông báo lỗi -->
+                    <th:block th:if="${session.errorMsg}">
+                        <p class="text-danger alert alert-danger text-center" th:text="${session.errorMsg}"></p>
+                        <div th:with="commonService=${@commonServiceImpl}">
+                            <div th:if="${commonService.removeSessionMessage()}"></div>
+                        </div>                                 
+                    </th:block>
+                    
+                    <div class="col-md-6">
+                        <!-- Hình ảnh sản phẩm -->
+                        <img th:src="@{'/img/product_img/'+${product.image}}" class="img-fluid product-image" alt="Sản phẩm">
+                    </div>
+
+                    <div class="col-md-6 product-info">
+                        <p class="fs-3 text-dark">[[${product.title}]]</p>
+                        <p class="fs-5">
+                            <span class="fw-bold">Mô tả: </span><br>[[${product.description}]]
+                        </p>
+                        <p>
+                            <span class="fw-bold">Chi tiết sản phẩm</span><br>Trạng thái :
+                            <th:block th:if="${product.stock > 0}">
+                                <span class="badge bg-success">Còn sản phẩm</span>
+                            </th:block>
+                            <th:block th:unless="${product.stock > 0}">
+                                <span class="badge bg-warning">Hết hàng</span>
+                            </th:block>
+                            <br>Loại : [[${product.category}]]
+                            <br>Cam kết : 7 ngày Đổi trả
+                        </p>
+
+                        <p class="price">
+                            Giá: [[${#strings.replace((product.finalPrice * (1 - product.discount / 100)) + '', '.0', '')}]] Đ
+                            <th:block th:if="${product.discount > 0}">
+                                <span class="fs-6 text-decoration-line-through text-secondary">[[${#strings.replace(product.finalPrice + '', '.0', '')}]] Đ</span>
+                                <span class="text-success fs-6">[[${product.discount}]]% off</span>
+                            </th:block>
+                        </p>                        
+
+                        <div class="row mb-3">
+                            <div class="col-md-4 text-success text-center p-2">
+                                <i class="fas fa-money-bill fa-2x"></i>
+                                <p>Thanh toán khi nhận hàng</p>
+                            </div>
+                            <div class="col-md-4 text-danger text-center p-2">
+                                <i class="fas fa-undo-alt fa-2x"></i>
+                                <p>Đổi trả miễn phí</p>
+                            </div>
+                        </div>
+
+                        <!-- Nút Thêm vào giỏ hàng -->
+                        <div class="action-buttons">
+                            <th:block th:if="${product.stock > 0}">
+                                <th:block th:if="${user==null}">
+                                    <a href="/signin" class="btn btn-danger">Thêm vào giỏ</a>
+                                </th:block>
+                            </th:block>
+
+                            <th:block th:if="${product.stock > 0}">
+                                <th:block th:unless="${user==null}">
+                                    <a th:href="@{'/user/addCart?pid='+${product.id}+'&uid='+${user.id}}" class="btn btn-danger">Thêm vào giỏ</a>
+                                </th:block>
+                            </th:block>
+
+                            <th:block th:unless="${product.stock > 0}">
+                                <a href="#" class="btn btn-warning text-white">Hết hàng</a>
+                            </th:block>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+         <!-- Sản phẩm liên quan -->
+         <div class="col-md-12 mt-5">
+            <h4 class="text-center">Sản phẩm liên quan</h4>
+            <div class="row">
+                <th:block th:each="relatedProduct : ${relatedProducts}">
+                    <div class="col-md-3 mb-4">
+                        <div class="card h-100 shadow-sm border-light rounded">
+                            <img th:src="@{'/img/product_img/'+${relatedProduct.image}}" class="card-img-top" alt="Sản phẩm" style="height: 250px; object-fit: cover;">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title text-center mb-3">[[${relatedProduct.title}]]</h5>
+                                <p class="text-center">
+                                    Giá: [[${relatedProduct.finalPrice}]] Đ
+                                </p>
+                                <div class="text-center mt-auto">
+                                    <a th:href="@{'/viewProduct/'+${relatedProduct.id}}" class="btn btn-primary w-100 py-2">Xem chi tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </th:block>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

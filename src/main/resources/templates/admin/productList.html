@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="https://www.thymeleaf.org" th:replace="~{base::layout(~{::section})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <section>
+        <div class="container-fluid mt-5 p-5">
+            <div class="row">
+                <p class="text-center fs-3 mb-0">Danh sách sản phẩm</p>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <a href="/admin/warehouseReportList" class="btn btn-info text-center">Phiếu nhập xuất kho</a>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between mb-3 align-items-center">
+                    <!-- Nút Quay về -->
+                    <a href="/admin/" class="text-decoration-none"><i class="fa-solid fa-arrow-left"></i> Quay về</a>
+                
+                    <!-- Form Tìm kiếm đơn hàng -->
+                    <form action="/admin/productList" method="get" class="d-flex flex-grow-1 mx-3">
+                        <input type="text" class="form-control me-2" name="ch" placeholder="Nhập tên sản phẩm">
+                        <button class="btn btn-primary">Tìm kiếm</button>
+                    </form>
+                
+                    <!-- Nút Thêm sản phẩm -->
+                    <a href="/admin/addProduct" class="btn btn-success">Thêm sản phẩm</a>
+                </div>   
+                
+                <script>
+                    document.querySelector('input[name="ch"]').addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            this.form.submit();
+                        }
+                    });
+                </script>
+                
+                <!-- Thông báo thành công -->
+                <th:block th:if="${session.succMsg}">
+                    <p class="text-success fw-bold text-center" th:text="${session.succMsg}"></p>
+                    <div th:with="commonService=${@commonServiceImpl}">
+                        <div th:if="${commonService.removeSessionMessage()}"></div>
+                    </div>
+                </th:block>
+
+                <!-- Thông báo lỗi -->
+                <th:block th:if="${session.errorMsg}">
+                    <p class="text-danger fw-bold text-center" th:text="${session.errorMsg}"></p>
+                    <div th:with="commonService=${@commonServiceImpl}">
+                        <div th:if="${commonService.removeSessionMessage()}"></div>
+                    </div>                                
+                </th:block>
+
+                <!-- <div class="card shadow"> -->
+                    <div class="p-3">
+                        <table class="table table-bordered">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Ảnh</th>
+                                    <th scope="col">Tên sản phẩm</th>
+                                    <th scope="col">Danh mục</th>
+                                    <th scope="col">Giá gốc</th>
+                                    <th scope="col">% giảm giá</th>
+                                    <th scope="col">Giá niêm yết</th>
+                                    <th scope="col">Trạng thái</th>
+                                    <th scope="col">Số lượng tồn kho</th>
+                                    <th scope="col">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="p:${productList}">
+                                    <th scope="row">[[${p.id}]]</th>
+                                    <td><img th:src="@{'/img/product_img/'+${p.image}}" height="120px" width="120px"></td>
+                                    <td>[[${p.title}]]</td>
+                                    <td>[[${p.category}]]</td>
+                                    <td>[[${#strings.replace((p.price + '').toString(), '.0', '')}]] Đ</td>
+                                    <td>[[${#strings.replace((p.discount + '').toString(), '.0', '')}]]</td>
+                                    <td>
+                                        [[${#strings.replace((p.finalPrice + '').toString(), '.0', '')}]] Đ
+                                        <!-- Kiểm tra nếu có giảm giá -->
+                                        <th:block th:if="${p.discount != null and p.discount > 0}">
+                                            <br/>Giá sau giảm: [[${#strings.replace(((p.finalPrice * (1 - p.discount / 100)) + '').toString(), '.0', '')}]] Đ
+                                        </th:block>
+                                    </td>
+                                    <td th:text="${p.isActive != null ? (p.isActive ? 'Đang hoạt động' : 'Không hoạt động') : 'Không xác định'}"></td>
+                                    <td>[[${p.stock}]]</td>
+                                    <td>
+                                        <a th:href="@{'/admin/editProduct/'+${p.id}}" class="btn btn-sm btn-primary"><i class="fa-solid fa-pen-to-square"></i>Edit</a>
+                                        <a th:href="@{'/admin/deleteProduct/'+${p.id}}" class="btn btn-sm btn-danger" onclick="return confirmDelete();"><i class="fa-solid fa-trash"></i>Xóa</a>
+                                    </td>
+                                    <script>
+                                        function confirmDelete() {
+                                            return confirm("Bạn có chắc chắn muốn xóa sản phẩm này không ?");
+                                        }
+                                    </script>
+                               </tr>
+                            </tbody>
+                        </table>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <nav aria-label="Page navigation example" class="d-flex justify-content-center">
+                                    <ul class="pagination">
+                                        <li class="page-item" th:classappend="${isFirst} ? 'disabled'">
+                                            <a class="page-link" th:href="@{'/admin/productList?pageNo=' + (${pageNo} - 1) + '&pageSize=' + ${pageSize}}">Previous</a>
+                                        </li>
+                                        <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPage)}">
+                                            <a class="page-link" th:href="@{'/admin/productList?pageNo=' + (${i-1}) + '&pageSize=' + ${pageSize}}">[[${i}]]</a>
+                                        </li>
+                                        <li class="page-item" th:classappend="${isLast} ? 'disabled'">
+                                            <a class="page-link" th:href="@{'/admin/productList?pageNo=' + (${pageNo} + 1) + '&pageSize=' + ${pageSize}}">Next</a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                <!-- </div> -->
+            </div>
+        </div> 
+    </section>
+</body>
+</html>

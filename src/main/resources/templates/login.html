@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="https://www.thymeleaf.org" th:replace="~{base::layout(~{::section})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập</title>
+</head>
+<body>
+    <section>
+        <div class="container mt-5 p-5">    
+            <div class="row">
+                <div class="col-md-6 p-5">
+                    <img alt="" src="img/login-image.jpg" width="100%" height="400px">
+                </div>
+                <div class="col-md-6 mt-4 p-5">
+                    <div class="card shadow p-3 mb-5 bg-body-tertiary rounded">
+                        <div class="card-header">
+                            <p class="text-center fs-4">Đăng nhập</p>
+                            <div th:if="${param.error}" class="text-center alert alert-danger">
+                                <span th:text="${session.SPRING_SECURITY_LAST_EXCEPTION != null ? session.SPRING_SECURITY_LAST_EXCEPTION.message : ''}"></span>
+                            </div>
+                            <div th:if="${param.logout}" class="text-center alert alert-success">
+                                Đăng xuất thành công
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <form action="/login" method="post">
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label> 
+                                    <input class="form-control" type="email" name="username">
+                                </div>
+    
+                                <div class="mb-3">
+                                    <label class="form-label">Mật khẩu</label> 
+                                    <input class="form-control" type="password" name="password" required>
+                                </div>
+    
+                                <button type="submit" class="btn bg-primary text-white col-md-12">Đăng nhập</button>
+                            </form>
+                        </div>
+
+                        <div class="card-footer text-center">
+                            <a href="/forgot-password" class="text-decoration-none">Quên mật khẩu</a><br>
+                            Không có tài khoản? <a href="/register">Đăng ký</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

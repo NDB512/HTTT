@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="https://www.thymeleaf.org" th:replace="~{base::layout(~{::section})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký / Nhập OTP</title>
+</head>
+<body>
+    <section>
+        <div class="container mt-5 p-5">    
+            <div class="row">
+                <div class="col-md-5 p-5">
+                    <img alt="" src="img/register-image.jpg" width="100%" height="400px">
+                </div>
+                <div class="col-md-7 p-2">
+                    <div class="card shadow p-3 mb-5 bg-body-tertiary rounded">
+                        <div class="card-header text-center">
+                            <p class="fs-4" th:if="${session.succMsg == null}">Đăng ký</p>
+                            <p class="fs-4" th:if="${session.succMsg != null}">Nhập mã OTP</p>
+
+                            <!-- Thông báo thành công -->
+                            <th:block th:if="${session.succMsg}">
+                                <p class="text-success fw-bold" th:text="${session.succMsg}"></p>
+                            </th:block>
+
+                            <!-- Thông báo lỗi -->
+                            <th:block th:if="${session.errorMsg}">
+                                <p class="text-danger fw-bold" th:text="${session.errorMsg}"></p>
+                            </th:block>
+                        </div>
+
+                        <div class="card-body">
+                            <!-- Form Đăng ký -->
+                            <form action="/saveUser" enctype="multipart/form-data" method="post" id="userRegister" novalidate th:if="${session.succMsg == null}">
+                                <div class="row">
+                                    <div class="col">        
+                                        <label class="form-label">Họ tên</label> 
+                                        <input class="form-control" type="text" name="name" required>
+                                    </div>
+                                    <div class="col">
+                                        <label class="form-label">Số điện thoại</label> 
+                                        <input class="form-control" type="number" name="phoneNumber" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label> 
+                                    <input class="form-control" type="email" name="email" required>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <label class="form-label">Mật khẩu</label> 
+                                        <input class="form-control" type="password" name="password" required>
+                                    </div>
+                                    <div class="col">
+                                        <label class="form-label">Xác nhận mật khẩu</label> 
+                                        <input class="form-control" type="password" name="confirmPassword" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Hình ảnh</label> 
+                                    <input class="form-control" type="file" name="img">
+                                </div>
+                                <button type="submit" class="btn bg-primary text-white col-md-12">Đăng ký</button>
+                            </form>
+
+                            <!-- Form Nhập OTP -->
+                            <form action="/verifyOtp" method="post" th:unless="${session.succMsg == null}">
+                                <div class="mb-3">
+                                    <label class="form-label">Nhập mã OTP</label> 
+                                    <input class="form-control" type="text" name="otp" required>
+                                </div>
+                                <button type="submit" class="btn bg-primary text-white col-md-12">Xác nhận OTP</button>
+                            </form>
+                        </div>
+
+                        <div class="card-footer text-center">
+                            Đã có tài khoản? <a href="/signin">Đăng nhập</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

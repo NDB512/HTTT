@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" th:replace="~{base::layout(~{::section})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <section>
+        <div class="container-fluid p-5 mt-5">
+            <a href="/admin/productList" class="text-decoration-none"><i class="fa-solid fa-arrow-left"></i> Quay về</a>
+            <div class="row justify-content-center">
+                <div class="col-lg-8 col-md-7 col-12">
+                    <div class="card shadow">
+                        <div class="card-header text-center fs-4">Danh sách phiếu nhập/xuất</div>
+                        <div class="card-body">
+                            <div class="text-center mb-3">
+                                <a href="/admin/warehouseReceiptForm" class="btn btn-success">Tạo phiếu nhập/xuất</a>
+                            </div>
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th scope="col">Thứ tự</th>
+                                        <th scope="col">ID phiếu</th>
+                                        <th scope="col">Ngày tạo</th>
+                                        <th scope="col">Phiếu</th>
+                                        <th scope="col">Xem chi tiết</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="ware, w : ${warehouseReportList}">
+                                        <th scope="row" th:text="${w.count}"></th>
+                                        <td th:text="${ware.warehouseReceiptId}"></td>
+                                        <td th:text="${ware.formattedDate}"></td>
+                                        <td th:text="${ware.type.name() == 'IMPORT' ? 'Nhập kho' : (ware.type.name() == 'EXPORT' ? 'Xuất kho' : '')}"></td>
+                                        <td>
+                                            <!-- Nút Xem chi tiết mở modal và truyền thông tin phiếu -->
+                                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" th:attr="data-bs-target='#receiptModal' + ${ware.id}">Xem chi tiết</button>
+                                            
+                                            <!-- Modal hiển thị chi tiết phiếu -->
+                                            <div class="modal fade" th:id="'receiptModal' + ${ware.id}" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog modal-lg">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" th:text="'Chi tiết phiếu ' + ${ware.warehouseReceiptId}"></h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p><strong>ID phiếu:</strong> <span th:text="${ware.warehouseReceiptId}"></span></p>
+                                                            <p><strong>Ngày tạo:</strong> <span th:text="${ware.formattedDate}"></span></p>
+                                                            <p><strong>Loại phiếu:</strong> <span th:text="${ware.type.name() == 'IMPORT' ? 'Nhập kho' : (ware.type.name() == 'EXPORT' ? 'Xuất kho' : '')}"></span></p>
+                                                            <p><strong>Ghi chú:</strong> <span th:text="${ware.note}"></span></p>
+                                                            <!-- Hiển thị chi tiết các item trong phiếu -->
+                                                            <h6>Danh sách mặt hàng</h6>
+                                                            <ul>
+                                                                <li th:each="item : ${ware.items}">
+                                                                    Tên sản phẩm: <span th:text="${item.product.title}"></span>, Số lượng: <span th:text="${item.quantity}"></span>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <nav aria-label="Page navigation example" class="d-flex justify-content-center">
+                                        <ul class="pagination">
+                                            <li class="page-item" th:classappend="${isFirst} ? 'disabled'">
+                                                <a class="page-link" th:href="@{'/admin/warehouseReportList?pageNo=' + (${pageNo} - 1) + '&pageSize=' + ${pageSize}}">Previous</a>
+                                            </li>
+                                            <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPage)}">
+                                                <a class="page-link" th:href="@{'/admin/warehouseReportList?pageNo=' + (${i-1}) + '&pageSize=' + ${pageSize}}">[[${i}]]</a>
+                                            </li>
+                                            <li class="page-item" th:classappend="${isLast} ? 'disabled'">
+                                                <a class="page-link" th:href="@{'/admin/warehouseReportList?pageNo=' + (${pageNo} + 1) + '&pageSize=' + ${pageSize}}">Next</a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>        
+    </section>
+</body>
+</html>

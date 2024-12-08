@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="https://www.thymeleaf.org" 
+                th:replace="~{base::layout(~{::section})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <section>
+        <div class="container mt-5 p-5">    
+            <div class="row">
+                <div class="col-md-7 p-2 offset-md-3">
+                    <div class="card shadow p-3 mb-5 bg-body-tertiary rounded">
+                        <div class="card-header text-center">
+                            <p class="fs-4">Đăng ký nhân viên</p>
+
+                            <!-- Thông báo thành công -->
+                            <th:block th:if="${session.succMsg}">
+                                <p class="text-success fw-bold" th:text="${session.succMsg}"></p>
+                                <div th:with="commonService=${@commonServiceImpl}">
+                                    <div th:if="${commonService.removeSessionMessage()}"></div>
+                                </div>
+                            </th:block>
+
+                            <!-- Thông báo lỗi -->
+                            <th:block th:if="${session.errorMsg}">
+                                <p class="text-danger fw-bold" th:text="${session.errorMsg}"></p>
+                                <div th:with="commonService=${@commonServiceImpl}">
+                                    <div th:if="${commonService.removeSessionMessage()}"></div>
+                                </div>                                
+                            </th:block>
+                        </div>
+                        <div class="card-body">
+                            <form action="/admin/saveStaff" enctype="multipart/form-data" method="post" id="userRegister" novalidate>
+                                <div class="row">
+                                    <div class="col">        
+                                        <label class="form-label">Họ tên</label> 
+                                        <input class="form-control" type="text" name="name" required>
+                                    </div>
+
+                                    <div class="col">
+                                        <label class="form-label">Số điện thoại</label> 
+                                        <input class="form-control" type="number" name="phoneNumber" required>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label> 
+                                    <input class="form-control" type="email" name="email" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Địa chỉ</label> 
+                                    <input class="form-control" type="text" name="address">
+                                </div>
+
+                                <div class="row">
+                                    <div class="col">
+                                        <label class="form-label">Mật khẩu</label> 
+                                        <input class="form-control" type="password" name="password" required>
+                                    </div>
+
+                                    <div class="col">
+                                        <label class="form-label">Xác nhận mật khẩu</label> 
+                                        <input class="form-control" type="password" name="confirmPassword" required>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Hình ảnh</label> 
+                                    <input class="form-control" type="file" name="img">
+                                </div>
+    
+                                <button type="submit" class="btn bg-primary text-white col-md-12">Đăng ký</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

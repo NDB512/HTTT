@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="https://www.thymeleaf.org" th:replace="~{base::layout(~{::section})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thành công</title>
+    <!-- Include Bootstrap CSS and JavaScript for modal functionality -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <section>
+        <div class="container-fluid mt-5 p-5">
+            <div class="row">
+                <p class="text-center fs-3">Đơn hàng</p>
+                
+                <!-- Thông báo thành công -->
+                <th:block th:if="${session.succMsg}">
+                    <p class="text-success fw-bold text-center" th:text="${session.succMsg}"></p>
+                    <div th:with="commonService=${@commonServiceImpl}">
+                        <div th:if="${commonService.removeSessionMessage()}"></div>
+                    </div>
+                </th:block>
+
+                <!-- Thông báo lỗi -->
+                <th:block th:if="${session.errorMsg}">
+                    <p class="text-danger fw-bold text-center" th:text="${session.errorMsg}"></p>
+                    <div th:with="commonService=${@commonServiceImpl}">
+                        <div th:if="${commonService.removeSessionMessage()}"></div>
+                    </div>                                
+                </th:block>
+
+                <div class="col-md-12">
+                    <table class="table table-striped table-hover table-bordered">
+                        <thead>
+                            <tr>
+                                <th scope="col">Mã đơn hàng</th>
+                                <th scope="col">Ngày tạo</th>
+                                <th scope="col">Tổng giá trị</th>
+                                <th scope="col">Trạng thái</th>
+                                <th scope="col">Chi tiết</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="o:${orders}">
+                                <th scope="row">[[${o.orderId}]]</th>
+                                <td>[[${o.orderedDay}]]</td>
+                                <td>[[${o.totalOrderPrice}]] Đ</td>
+                                <td>[[${o.status}]]</td>
+                                <td>
+                                    <!-- Nút Hiện Chi tiết -->
+                                    <a th:href="@{order/{id}(id=${o.id})}">Xem Chi Tiết</a>
+                                </td>
+                                <td>
+                                    <a th:href="@{'/user/update-status?id='+${o.id}+'&st=6'}" 
+                                       th:class="${o.status == 'Hủy' || o.status == 'Đã giao hàng' || o.status == 'Đã nhận đơn hàng'} ? 'btn btn-sm btn-danger disabled' : 'btn btn-sm btn-danger'" 
+                                       th:style="${o.status == 'Hủy' || o.status == 'Đã giao hàng' || o.status == 'Đã nhận đơn hàng'} ? 'pointer-events: none; opacity: 0.5;' : ''">
+                                       Hủy
+                                    </a>
+                                </td>                                                             
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

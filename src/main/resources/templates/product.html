@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="https://www.thymeleaf.org" th:replace="~{base::layout(~{::section})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .container-fluid.bg-primary {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+
+        .card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .list-group-item.active {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: white;
+        }
+
+        .pagination .page-item .page-link {
+            color: #007bff;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: #6c757d;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: white;
+        }
+
+        img {
+            object-fit: cover;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <section>
+        <div class="container-fluid bg-primary p-5 mt-5 text-center">
+            <h1 class="display-4">Tìm kiếm Sản phẩm</h1>
+            <p class="lead">Khám phá các sản phẩm yêu thích của bạn</p>
+            <form action="/products" method="get" class="d-flex justify-content-center mt-4">
+                <div class="input-group w-50">
+                    <input type="text" class="form-control" name="ch" placeholder="Nhập từ khóa..." th:value="${searchQuery}">
+                    <button class="btn btn-secondary">
+                        <i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="container-fluid mt-1">
+            <div class="row">
+                <div class="col-md-2 p-0">
+                    <div class="card shadow-sm p-0 mb-5 bg-body-tertiary rounded">
+                        <div class="card-header text-center bg-primary text-white">
+                            <h5>Danh mục</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group">
+                                <a href="/products" class="list-group-item list-group-item-action" th:classappend="${paramValue==''} ? 'active'+''">
+                                    Tất cả
+                                </a>
+                                <a th:href="@{'/products?category='+${c.name}}" th:each="c:${categories}" class="list-group-item list-group-item-action" th:classappend="${paramValue==c.name} ? 'active'+''">
+                                    [[${c.name}]]
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-10">
+                    <div class="card shadow-sm p-3 mb-5 bg-body-tertiary rounded">
+                        <div class="card-body">
+                            <p class="text-center fs-3">Sản phẩm</p>
+                            <div class="row g-4">
+                                <th:block th:if="${productsSize > 0}">
+                                    <div class="col-md-3 mb-4" th:each="p:${products}">
+                                        <div class="card h-100 shadow-sm border-light rounded">
+                                            <!-- Hình ảnh sản phẩm -->
+                                            <img th:src="@{'/img/product_img/'+${p.image}}" class="card-img-top" alt="Sản phẩm" style="height: 250px; object-fit: cover;">
+                                            
+                                            <div class="card-body d-flex flex-column">
+                                                <h5 class="card-title text-center mb-3">[[${p.title}]]</h5>
+                                                <div class="d-flex justify-content-center mb-4">
+                                                    <p class="card-text text-center">
+                                                        <span th:if="${p.discount > 0}" class="text-danger">
+                                                            [[${#strings.replace((p.finalPrice * (1 - p.discount / 100)) + '', '.0', '')}]] Đ
+                                                        </span>
+                                                        <span th:if="${p.discount > 0}" class="text-muted text-decoration-line-through">
+                                                            [[${#strings.replace((p.finalPrice) + '', '.0', '')}]] Đ
+                                                        </span>
+                                                        <span th:unless="${p.discount > 0}">
+                                                            [[${#strings.replace((p.finalPrice) + '', '.0', '')}]] Đ
+                                                        </span>                                                        
+                                                    </p>
+                                                </div>
+                                                <!-- Nút "Xem chi tiết" đẹp hơn và trung tâm -->
+                                                <div class="text-center mt-auto">
+                                                    <a th:href="@{'/viewProduct/'+${p.id}}" class="btn btn-primary w-100 py-2">Xem chi tiết</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>                                    
+                                </th:block>
+
+                                <th:block th:unless="${productsSize > 0}">
+                                    <p class="fs-4 text-center mt-4 text-danger">Sản phẩm hiện chưa có</p>
+                                </th:block>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <th:block th:if="${productsSize > 0}">
+                                <nav aria-label="Page navigation" class="d-flex justify-content-center mt-4">
+                                    <ul class="pagination">
+                                        <li class="page-item" th:classappend="${isFirst} ? 'disabled'">
+                                            <a class="page-link" th:href="@{${searchQuery != null} ? '/products?pageNo=' + (${pageNo} - 1) + '&pageSize=' + ${pageSize} + '&category=' + ${paramValue} + '&ch=' + ${searchQuery} : '/products?pageNo=' + (${pageNo} - 1) + '&pageSize=' + ${pageSize} + '&category=' + ${paramValue} + '&ch='}">Trước</a>
+                                        </li>
+
+                                        <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPage)}" th:classappend="${pageNo == i - 1} ? 'active'">
+                                            <a class="page-link" th:href="@{${searchQuery != null} ? '/products?pageNo=' + (${i - 1}) + '&pageSize=' + ${pageSize} + '&category=' + ${paramValue} + '&ch=' + ${searchQuery} : '/products?pageNo=' + (${i - 1}) + '&pageSize=' + ${pageSize} + '&category=' + ${paramValue} + '&ch='}">[[${i}]]</a>
+                                        </li>
+
+                                        <li class="page-item" th:classappend="${isLast} ? 'disabled'">
+                                            <a class="page-link" th:href="@{${searchQuery != null} ? '/products?pageNo=' + (${pageNo} + 1) + '&pageSize=' + ${pageSize} + '&category=' + ${paramValue} + '&ch=' + ${searchQuery} : '/products?pageNo=' + (${pageNo} + 1) + '&pageSize=' + ${pageSize} + '&category=' + ${paramValue} + '&ch='}">Tiếp</a>
+                                        </li>                                  
+                                    </ul>
+                                </nav>
+                            </th:block>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mouseover', () => card.classList.add('shadow-lg'));
+            card.addEventListener('mouseout', () => card.classList.remove('shadow-lg'));
+        });
+
+        document.querySelector('input[name="ch"]').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                this.form.submit();
+            }
+        });
+    </script>
+</body>
+</html>

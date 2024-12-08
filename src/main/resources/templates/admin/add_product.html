@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="https://www.thymeleaf.org" th:replace="~{base::layout(~{::section})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thêm sản phẩm</title>
+</head>
+<body>
+    <section>
+        <div class="container p-5 mt-3">
+            <div class="row">
+                <div class="col-xl-8 col-lg-9 col-md-10 col-12 mx-auto">
+                    <div class="card shadow">
+                        <div class="card-header text-center position-relative">
+                            <p class="fs-4 m-0">Thêm sản phẩm</p>
+                            <a href="/admin/productList" class="btn-close position-absolute" style="top: 10px; right: 10px;" aria-label="X"></a>
+
+                            <!-- Thông báo thành công -->
+                            <th:block th:if="${session.succMsg}">
+                                <p class="text-success fw-bold" th:text="${session.succMsg}"></p>
+                                <div th:with="commonService=${@commonServiceImpl}">
+                                    <div th:if="${commonService.removeSessionMessage()}"></div>
+                                </div>
+                            </th:block>
+
+                            <!-- Thông báo lỗi -->
+                            <th:block th:if="${session.errorMsg}">
+                                <p class="text-danger fw-bold" th:text="${session.errorMsg}"></p>
+                                <div th:with="commonService=${@commonServiceImpl}">
+                                    <div th:if="${commonService.removeSessionMessage()}"></div>
+                                </div>                                 
+                            </th:block>
+                        </div>
+                        
+                        <div class="card-body">
+                            <form action="/admin/saveProduct" method="post" enctype="multipart/form-data">
+                                <input type="hidden" th:if="${product != null and product.id != null}" name="id" th:value="${product.id}" />
+                                <div class="mb-3">
+                                    <label>Nhập tên sản phẩm</label>
+                                    <input type="text" name="title" class="form-control">
+                                </div>
+        
+                                <div class="mb-3">
+                                    <label>Nhập mô tả</label>
+                                    <textarea name="description" rows="3" class="form-control"></textarea>
+                                </div>
+        
+                                <div class="mb-3">
+                                    <label>Loại sản phẩm</label>
+                                    <select class="form-control" name="category">
+                                        <option value="" disabled selected>--Lựa chọn--</option>
+                                        <option th:each="c : ${categories}" th:value="${c.name}" th:text="${c.name}"></option>
+                                    </select>
+                                </div>
+        
+                                <div class="mb-3">
+                                    <label>Nhập giá gốc sản phẩm</label>
+                                    <input type="number" name="price" class="form-control" min="0">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>% Thuế</label>
+                                    <input type="number" name="productTaxRate" id="productTaxRate" class="form-control" min="0" step="0.01" placeholder="Nhập thuế thêm cho sản phẩm">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>% Lợi nhuận mong muốn</label>
+                                    <input type="number" name="profitMargin" class="form-control" min="0" step="0.01" placeholder="Nhập lợi nhuận mong muốn">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>Trạng thái</label>
+                                    <div class="form-check" name="isActive">
+                                        <input class="form-check-input" type="radio" name="isActive" id="flexRadioDefault1" value="true" checked>
+                                        <label class="form-check-label" for="flexRadioDefault1">Kích hoạt</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="isActive" id="flexRadioDefault2" value="false">
+                                        <label class="form-check-label" for="flexRadioDefault2">Không kích hoạt</label>
+                                    </div>
+                                </div>
+        
+                                <div class="row">
+                                    <div class="mb-3 col">
+                                        <label>Số lượng sản phẩm</label>
+                                        <input type="number" name="stock" class="form-control" value="0" readonly>
+                                    </div>
+        
+                                    <div class="mb-3 col">
+                                        <label>Hình ảnh</label>
+                                        <input type="file" name="file" class="form-control">
+                                    </div>
+                                </div>
+                                 
+                                <div class="row">
+                                    <div class="col-6">
+                                        <button type="submit" class="btn btn-primary btn-lg w-100">Thêm sản phẩm</button>
+                                    </div>
+                                    <div class="col-6">
+                                        <a href="/admin/productList" class="btn btn-danger btn-lg w-100">Hủy</a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

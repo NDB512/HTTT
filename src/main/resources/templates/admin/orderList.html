@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="https://www.thymeleaf.org" th:replace="~{base::layout(~{::section})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thành công</title>
+    <!-- Include Bootstrap CSS and JavaScript for modal functionality -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <section>
+        <div class="container-fluid mt-5 p-2">
+            <div class="row">
+                <p class="text-center fs-3">Danh sách đơn hàng</p>
+                <hr>
+                <a href="/admin/" class="text-decoration-none"><i class="fa-solid fa-arrow-left"></i> Quay về</a>
+                <!-- Thông báo thành công -->
+                <th:block th:if="${session.succMsg}">
+                    <p class="text-success fw-bold text-center" th:text="${session.succMsg}"></p>
+                    <div th:with="commonService=${@commonServiceImpl}">
+                        <div th:if="${commonService.removeSessionMessage()}"></div>
+                    </div>
+                </th:block>
+
+                <!-- Thông báo lỗi -->
+                <th:block th:if="${session.errorMsg}">
+                    <p class="text-danger fw-bold text-center" th:text="${session.errorMsg}"></p>
+                    <div th:with="commonService=${@commonServiceImpl}">
+                        <div th:if="${commonService.removeSessionMessage()}"></div>
+                    </div>                                
+                </th:block>
+
+                <div class="col-md-4 p-4">
+                    <form action="/admin/search-order" method="get">
+                        <div class="row">
+                            <div class="col">
+                                <input type="text" class="form-control" name="orderId" placeholder="Nhập ID của đơn hàng">
+                            </div>
+                            <div class="col">
+                                <button class=" btn btn-primary col">Tìm kiếm</button>
+                            </div>
+                        </div>
+                    </form>        
+                </div>
+
+                <script>
+                    document.querySelector('input[name="orderId"]').addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            this.form.submit();
+                        }
+                    });
+                </script>
+
+                <div class="col-md-12 ps-4 pe-4">
+                    <table class="table table-striped table-hover table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th scope="col">Mã đơn hàng</th>
+                                <th scope="col">Ngày tạo</th>
+                                <th scope="col">Tổng giá trị</th>
+                                <th scope="col">Trạng thái</th>
+                                <th scope="col">Chi tiết</th>
+                                <th scope="col">Chọn trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            <th:block th:if="${OrderDtls!=null}">
+                                <th:block th:if="${srch}">
+                                    <tr>
+                                        <th scope="row">[[${OrderDtls.orderId}]]</th>
+                                        <td>[[${OrderDtls.orderedDay}]]</td>
+                                        <td><span th:text="${#strings.replace((OrderDtls.totalOrderPrice + '').toString(), '.0', '') + ' Đ'}"></span></td>
+                                        <td>[[${OrderDtls.status}]]</td>
+                                        <td>
+                                            <!-- Nút Hiện Chi tiết -->
+                                            <a th:href="@{orderdetail/{id}(id=${OrderDtls.id})}">Xem Chi Tiết</a>
+                                        </td>
+                                        <td>
+                                            <form action="/admin/update-order-status" method="post">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <select class="form-control" name="st" id="">
+                                                            <option value="">--Chọn--</option>
+                                                            <option value="1">Đang xử lý</option>
+                                                            <option value="2">Đã đóng gói sản phẩm</option>
+                                                            <option value="3">Đang giao hàng</option>
+                                                            <option value="4">Đã giao hàng</option>
+                                                            <option value="5">Đã nhận đơn hàng</option>
+                                                            <option value="6">Hủy</option>
+                                                        </select>
+                                                    </div>
+                                                    <input type="hidden" name="id" th:value="${OrderDtls.id}">
+                                                    <div class="col">
+                                                        <th:block th:if="${OrderDtls.status == 'Hủy' || OrderDtls.status == 'Đã giao hàng' || OrderDtls.status == 'Đã nhận đơn hàng'}">
+                                                            <button class="btn btn-sm btn-primary col disabled">Cập nhập</button>
+                                                        </th:block >
+                                                        <th:block th:unless="${OrderDtls.status == 'Hủy' || OrderDtls.status == 'Đã giao hàng' || OrderDtls.status == 'Đã nhận đơn hàng'}">
+                                                            <button class="btn btn-sm btn-primary col">Cập nhập</button>
+                                                        </th:block>
+                                                    </div>
+                                                </div>
+                                            </form>        
+                                        </td>
+                                    </tr>
+                                </th:block>
+                            </th:block>
+
+                            <th:block th:unless="${OrderDtls != null}">
+                                <p class="fs-3 text-center text-danger">[[${errorMsg}]]</p>
+                            </th:block>
+
+                            <th:block th:unless="${srch}">
+                                <tr th:each="o:${orders}">
+                                    <th scope="row">[[${o.orderId}]]</th>
+                                    <td>[[${o.orderedDay}]]</td>
+                                    <td><span th:text="${#strings.replace((o.totalOrderPrice + '').toString(), '.0', '') + ' Đ'}"></span></td>
+                                    <td>[[${o.status}]]</td>
+                                    <td>
+                                        <!-- Nút Hiện Chi tiết -->
+                                        <a th:href="@{orderdetail/{id}(id=${o.id})}">Xem Chi Tiết</a>
+                                    </td>
+                                    <td>
+                                        <form action="/admin/update-order-status" method="post">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <select class="form-control" name="st" id="">
+                                                        <option value="">--Chọn--</option>
+                                                        <option value="1">Đang xử lý</option>
+                                                        <option value="2">Đã đóng gói sản phẩm</option>
+                                                        <option value="3">Đang giao hàng</option>
+                                                        <option value="4">Đã giao hàng</option>
+                                                        <option value="5">Đã nhận đơn hàng</option>
+                                                        <option value="6">Hủy</option>
+                                                    </select>
+                                                </div>
+                                                <input type="hidden" name="id" th:value="${o.id}">
+                                                <div class="col">
+                                                    <th:block th:if="${o.status == 'Hủy' || o.status == 'Đã giao hàng' || o.status == 'Đã nhận đơn hàng'}">
+                                                        <button class="btn btn-sm btn-primary col disabled">Cập nhập</button>
+                                                    </th:block >
+                                                    <th:block th:unless="${o.status == 'Hủy' || o.status == 'Đã giao hàng' || o.status == 'Đã nhận đơn hàng'}">
+                                                        <button class="btn btn-sm btn-primary col">Cập nhập</button>
+                                                    </th:block>
+                                                </div>
+                                            </div>
+                                        </form>        
+                                    </td>
+                                </tr>
+                            </th:block>
+
+                        </tbody>
+                    </table>
+
+                    <th:block th:if="${!srch}">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <nav aria-label="Page navigation example" class="d-flex justify-content-center">
+                                    <ul class="pagination">
+                                        <li class="page-item" th:classappend="${isFirst} ? 'disabled'">
+                                            <a class="page-link" th:href="@{'/admin/orderList?pageNo=' + (${pageNo} - 1) + '&pageSize=' + ${pageSize}}">Previous</a>
+                                        </li>
+                                        <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPage)}">
+                                            <a class="page-link" th:href="@{'/admin/orderList?pageNo=' + (${i-1}) + '&pageSize=' + ${pageSize}}">[[${i}]]</a>
+                                        </li>
+                                        <li class="page-item" th:classappend="${isLast} ? 'disabled'">
+                                            <a class="page-link" th:href="@{'/admin/orderList?pageNo=' + (${pageNo} + 1) + '&pageSize=' + ${pageSize}}">Next</a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </th:block>
+
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

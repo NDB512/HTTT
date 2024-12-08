@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhập Phiếu Nhập Kho</title>
+    <!-- Thêm Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .item {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            background-color: #f1f1f1;
+        }
+        .text-success, .text-danger {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Nhập Phiếu Xuất Nhập Kho</h1>
+        <a href="/admin/warehouseReportList" class="text-decoration-none"><i class="fa-solid fa-arrow-left"></i> Quay về</a>
+
+        <!-- Thông báo thành công -->
+        <th:block th:if="${session.succMsg}">
+            <p class="text-success fw-bold" th:text="${session.succMsg}"></p>
+            <div th:with="commonService=${@commonServiceImpl}">
+                <div th:if="${commonService.removeSessionMessage()}"></div>
+            </div>
+        </th:block>
+
+        <!-- Thông báo lỗi -->
+        <th:block th:if="${session.errorMsg}">
+            <p class="text-danger fw-bold" th:text="${session.errorMsg}"></p>
+            <div th:with="commonService=${@commonServiceImpl}">
+                <div th:if="${commonService.removeSessionMessage()}"></div>
+            </div>                                 
+        </th:block>
+
+        <form action="/admin/warehouse-receipts" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="type">Loại Phiếu:</label>
+                <select id="type" name="type" class="form-control" required>
+                    <option value="IMPORT">Nhập Kho</option>
+                    <option value="EXPORT">Xuất Kho</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="date">Ngày:</label>
+                <input type="datetime-local" id="date" name="date" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="note">Ghi Chú:</label>
+                <textarea id="note" name="note" rows="4" class="form-control"></textarea>
+            </div>
+
+            <h2>Danh Sách Sản Phẩm</h2>
+            <div id="items">
+                <div class="item">
+                    <div class="form-group">
+                        <label for="productId">ID Sản Phẩm:</label>
+                        <input type="number" name="items[0].product.id" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="quantity">Số Lượng:</label>
+                        <input type="number" name="items[0].quantity" class="form-control" required>
+                    </div>
+                    <button type="button" class="btn btn-danger" onclick="removeItem(this)">Xóa</button>
+                </div>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="addItem()">Thêm Sản Phẩm</button>
+            <br><br>
+
+            <button type="submit" class="btn btn-success">Lưu Phiếu</button>
+        </form>
+    </div>
+
+    <script>
+        // Tự động điền ngày giờ hiện tại vào trường "date"
+        window.addEventListener('load', () => {
+            const dateInput = document.getElementById("date");
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            dateInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+        });
+
+        let itemCount = 1;
+
+        function addItem() {
+            const itemsDiv = document.getElementById("items");
+            const newItemDiv = document.createElement("div");
+            newItemDiv.className = "item";
+            newItemDiv.innerHTML = `
+                <div class="form-group">
+                    <label for="productId">ID Sản Phẩm:</label>
+                    <input type="number" name="items[${itemCount}].product.id" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="quantity">Số Lượng:</label>
+                    <input type="number" name="items[${itemCount}].quantity" class="form-control" required>
+                </div>
+                <button type="button" class="btn btn-danger" onclick="removeItem(this)">Xóa</button>
+            `;
+            itemsDiv.appendChild(newItemDiv);
+            itemCount++;
+        }
+
+        function removeItem(button) {
+            const itemDiv = button.parentElement;
+            itemDiv.remove();
+        }
+    </script>
+    <!-- Thêm Bootstrap JS và jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+.cart-sh {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+}
+
+.cat-div {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.error {
+    color: red;
+}
+
+/* Base Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4; /* Nền sáng cho toàn bộ trang */
+    color: #333; /* Màu chữ tối */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0; /* Loại bỏ khoảng trống */
+}
+
+/* Đảm bảo footer luôn ở cuối */
+main {
+    flex: 1;
+}
+
+/* Đặt khoảng cách giữa footer và nội dung */
+footer {
+    padding: 20px 0;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+}
+
+/* Navbar */
+.navbar {
+    background-color: #333; /* Màu nền navbar đen nhạt */
+    border-bottom: 2px solid #ccc; /* Viền nhẹ để tạo sự phân tách */
+}
+
+.navbar .navbar-brand {
+    font-size: 1.5rem;
+    color: #fff; /* Màu chữ trắng cho brand */
+    transition: color 0.3s ease; /* Hiệu ứng chuyển màu */
+}
+
+.navbar-brand {
+    font-family: 'Pacifico', cursive; /* Áp dụng font Pacifico cho logo */
+    font-size: 2rem; /* Cỡ chữ logo */
+    font-weight: bold;
+    color: #fff; /* Màu chữ trắng */
+    text-decoration: none; /* Loại bỏ gạch chân */
+}
+
+.navbar-brand:hover {
+    color: #ff5733; /* Màu chữ khi hover logo */
+}
+
+.navbar-brand i {
+    color: #ff5733; /* Màu icon */
+    transition: color 0.3s ease; /* Hiệu ứng chuyển màu cho icon */
+}
+
+.navbar-brand:hover i {
+    color: #fff; /* Màu icon khi hover trên logo */
+}
+
+.navbar .nav-link {
+    color: #ccc; /* Màu chữ nhạt cho các liên kết */
+    transition: color 0.3s ease; /* Hiệu ứng chuyển màu */
+}
+
+.navbar .nav-link:hover {
+    color: #fff; /* Chuyển màu chữ thành trắng khi hover */
+}
+
+.navbar .dropdown-menu {
+    background-color: #444; /* Màu nền dropdown */
+    transition: background-color 0.3s ease; /* Hiệu ứng chuyển nền cho dropdown */
+}
+
+.navbar .dropdown-menu .dropdown-item {
+    color: #ddd; /* Màu chữ nhạt trong dropdown */
+    transition: color 0.3s ease; /* Hiệu ứng chuyển màu chữ */
+}
+
+.navbar .dropdown-menu .dropdown-item:hover {
+    background-color: #555; /* Nền tối khi hover trong dropdown */
+    color: #fff; /* Màu chữ trắng khi hover */
+}
+
+/* Thêm hiệu ứng cho các mục trong navbar */
+.navbar .nav-item:hover {
+    background-color: rgba(0, 0, 0, 0.1); /* Nền sáng khi hover vào mỗi mục */
+    border-radius: 5px; /* Làm tròn các góc */
+}
+
+.navbar .nav-item.active, .navbar .nav-link.active {
+    color: #ff5733; /* Màu chữ khi mục được chọn */
+    font-weight: bold;
+}
+
+footer {
+    background-color: #333; /* Nền tối */
+    color: #fff; /* Chữ trắng */
+    padding: 50px 0; /* Tăng padding để có khoảng cách lớn hơn */
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: 250px; /* Thêm khoảng cách phía trên footer */
+}
+
+footer .footer-logo {
+    font-family: 'Pacifico', cursive; /* Áp dụng font Pacifico cho logo */
+    font-size: 2rem; /* Tăng cỡ chữ logo */
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 20px; /* Khoảng cách dưới logo */
+}
+
+footer .social-icons {
+    margin-bottom: 20px; /* Khoảng cách dưới các icon mạng xã hội */
+}
+
+footer .social-icons a {
+    color: #fff;
+    margin: 0 10px;
+    font-size: 1.2rem;
+    transition: color 0.3s ease;
+}
+
+footer .social-icons a:hover {
+    color: #ff5733;
+}
+
+footer .footer-links {
+    margin: 20px 0; /* Thêm khoảng cách giữa các liên kết */
+}
+
+footer .footer-links a {
+    color: #ccc;
+    margin: 0 15px;
+    text-decoration: none;
+}
+
+footer .footer-links a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+footer .footer-bottom {
+    margin-top: 30px;
+    font-size: 0.8rem;
+    color: #aaa;
+    margin-bottom: 20px; /* Khoảng cách dưới thông tin bản quyền */
+}

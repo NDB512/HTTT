@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="https://www.thymeleaf.org" th:replace="~{base::layout(~{::section})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ Hàng</title>
+</head>
+<body>
+    <section>
+        <div class="container-fluid mt-5 p-5">
+            <!-- Thông báo giỏ hàng trống -->
+            <div th:if="${#lists.isEmpty(carts)}" class="text-center mt-5">
+                <p class="fs-4 fw-bold">Giỏ hàng trống! Hãy thêm sản phẩm vào giỏ hàng.</p>
+                <a href="javascript:history.back()" class="btn btn-secondary">Quay về</a>
+            </div>
+
+            <!-- Nội dung giỏ hàng -->
+            <div th:if="${!#lists.isEmpty(carts)}" class="card shadow">
+                <div class="card-header text-center">
+                    <p class="fs-4">Giỏ hàng</p>
+                    <!-- Thông báo thành công -->
+                    <th:block th:if="${session.succMsg}">
+                        <p class="text-success fw-bold" th:text="${session.succMsg}"></p>
+                        <div th:with="commonService=${@commonServiceImpl}">
+                            <div th:if="${commonService.removeSessionMessage()}"></div>
+                        </div>
+                    </th:block>
+
+                    <!-- Thông báo lỗi -->
+                    <th:block th:if="${session.errorMsg}">
+                        <p class="text-danger fw-bold" th:text="${session.errorMsg}"></p>
+                        <div th:with="commonService=${@commonServiceImpl}">
+                            <div th:if="${commonService.removeSessionMessage()}"></div>
+                        </div>                                
+                    </th:block>
+                    <div class="cart-body">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Thứ tự</th>
+                                    <th scope="col">Ảnh</th>
+                                    <th scope="col">Tên sản phẩm</th>
+                                    <th scope="col">Giá</th>
+                                    <th scope="col">Số lượng</th>
+                                    <th scope="col">Tổng giá</th>
+                                    <!-- <th scope="col"></th> -->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="carts, c : ${carts}">
+                                    <th scope="row">[[${c.count}]]</th>
+                                    <td><img th:src="@{'/img/product_img/'+${carts.product.image}}" height="120px" width="120px"></td>
+                                    <td>[[${carts.product.title}]]</td>
+                                    <td>[[${carts.product.finalPrice * (1 - carts.product.discount / 100)}]] Đ</td>
+                                    <td>
+                                        <a th:href="@{'/user/cartQuantityUpdate?sy=de&cid='+${carts.id}}"><i class="fa-solid fa-minus"></i></a> 
+                                        [ [[${carts.quantity}]] ] 
+                                        <a th:href="@{'/user/cartQuantityUpdate?sy=in&cid='+${carts.id}}"><i class="fa-solid fa-plus"></i></a>
+                                    </td>
+                                    <td>[[${carts.totalPrice}]] Đ</td>
+                                    <!-- <td>
+                                        <a th:href="@{'/user/deleteCart/'+${carts.id}}" class="btn btn-sm btn-danger" onclick="return confirmDelete();"><i class="fa-solid fa-trash"></i> Xóa</a>
+                                    </td>
+                                    <script>
+                                        function confirmDelete() {
+                                            return confirm("Bạn có chắc chắn muốn xóa giỏ hàng này không?");
+                                        }
+                                    </script> -->
+                                </tr>
+                                <tr>
+                                    <td colspan="4"></td>
+                                    <td class="fw-bold">Tổng giá trị giỏ hàng: </td>
+                                    <td>[[${totalProductPrice}]] Đ</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="text-center">
+                            <a href="/user/orders" class="btn btn-warning">Thanh Toán</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

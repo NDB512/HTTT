@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="https://www.thymeleaf.org" 
+      th:replace="~{base::layout(~{::section})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Address</title>
+</head>
+<body>
+    <section>
+        <div class="container-fluid p-5 mt-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-6 col-md-8 col-12 mb-4">
+                    <div class="card shadow">
+                        <div class="card-header text-center">
+                            <p class="fs-4">Chỉnh sửa địa chỉ</p>
+                            
+                            <!-- Thông báo thành công -->
+                            <th:block th:if="${session.succMsg}">
+                                <p class="text-success fw-bold" th:text="${session.succMsg}"></p>
+                                <div th:with="commonService=${@commonServiceImpl}">
+                                    <div th:if="${commonService.removeSessionMessage()}"></div>
+                                </div>
+                            </th:block>
+
+                            <!-- Thông báo lỗi -->
+                            <th:block th:if="${session.errorMsg}">
+                                <p class="text-danger fw-bold" th:text="${session.errorMsg}"></p>
+                                <div th:with="commonService=${@commonServiceImpl}">
+                                    <div th:if="${commonService.removeSessionMessage()}"></div>
+                                </div>
+                            </th:block>
+                        </div>
+
+                        <div class="card-body">
+                            <form action="/user/updateAddress" method="post" enctype="multipart/form-data">
+                                <!-- ID địa chỉ (ẩn) -->
+                                <div class="mb-3">
+                                    <input type="hidden" name="id" th:value="${address.id}">
+                                </div>
+
+                                <!-- Tên đường -->
+                                <div class="mb-3">
+                                    <label for="street">Tên đường</label>
+                                    <input type="text" class="form-control" name="street" id="street" th:value="${address.street}" required>
+                                </div>
+
+                                <!-- Phường/Xã -->
+                                <div class="mb-3">
+                                    <label for="ward">Phường/Xã</label>
+                                    <input type="text" class="form-control" name="ward" id="ward" th:value="${address.ward}" required>
+                                </div>
+
+                                <!-- Quận/Huyện -->
+                                <div class="mb-3">
+                                    <label for="district">Quận/Huyện</label>
+                                    <input type="text" class="form-control" name="district" id="district" th:value="${address.district}" required>
+                                </div>
+
+                                <!-- Thành phố -->
+                                <div class="mb-3">
+                                    <label for="city">Thành phố</label>
+                                    <input type="text" class="form-control" name="city" id="city" th:value="${address.city}" required>
+                                </div>
+
+                                <!-- Mã bưu điện -->
+                                <div class="mb-3">
+                                    <label for="postalCode">Mã bưu điện</label>
+                                    <input type="text" class="form-control" name="postalCode" id="postalCode" th:value="${address.postalCode}" required>
+                                </div>
+
+                                <!-- Nút lưu và đóng -->
+                                <div class="d-flex justify-content-between mt-3">
+                                    <button class="btn btn-primary col-md-5">Lưu</button>
+                                    <a href="/user/addresses" class="btn btn-secondary col-md-5">Đóng</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>        
+    </section>
+</body>
+</html>
