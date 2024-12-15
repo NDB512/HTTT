@@ -94,6 +94,26 @@ public class HomeController {
         return "register";
     }
 
+    @GetMapping("/contact")
+    public String contant(){
+        return "contact";
+    }
+
+    @GetMapping("/about-us")
+    public String about_us(){
+        return "about_us";
+    }
+
+    @GetMapping("/privacy-policy")
+    public String privacy_policy(){
+        return "privacy_policy";
+    }
+
+    @GetMapping("/terms-of-service")
+    public String terms_of_service(){
+        return "terms_of_service";
+    }
+
     // Trang sản phẩm, hiển thị các sản phẩm theo danh mục nếu có
     @GetMapping("/products")
     public String product(Model model, 

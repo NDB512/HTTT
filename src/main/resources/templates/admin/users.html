@@ -1,12 +1,40 @@
 <!DOCTYPE html>
-<html lang="en" xmlns="https://www.thymeleaf.org" th:replace="~{base::layout(~{::section})}">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" th:replace="~{base::layout(~{::section})}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Quản lý tài khoản</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <body>
     <section>
+        <script>
+            // Chức năng toggle giữa bảng Nhân viên và Người dùng
+            function toggleTable() {
+                const userTable = document.getElementById('userTable');
+                const staffTable = document.getElementById('staffTable');
+                const toggleButton = document.getElementById('toggleButton');
+                const tableTitle = document.getElementById('tableTitle');
+    
+                if (userTable.style.display === 'none') {
+                    userTable.style.display = '';
+                    staffTable.style.display = 'none';
+                    toggleButton.innerText = 'Hiển thị Nhân viên';
+                    tableTitle.innerText = 'Danh sách tài khoản Người dùng';
+                } else {
+                    userTable.style.display = 'none';
+                    staffTable.style.display = '';
+                    toggleButton.innerText = 'Hiển thị Người dùng';
+                    tableTitle.innerText = 'Danh sách tài khoản Nhân viên';
+                }
+            }
+        </script>
+        <div id="loading" style="display: none; text-align: center; margin-top: 20px;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        
         <div class="container-fluid mt-5 p-5">
             <div class="d-flex justify-content-between mb-3">
                 <!-- Nút Quay về -->
@@ -14,10 +42,14 @@
 
                 <!-- Nút Nhân viên-->
                 <a href="/admin/add-staff" class="btn btn-success">Thêm nhân viên</a>
+
+                <button class="btn btn-primary" id="toggleButton" onclick="toggleTable()">Hiển thị Nhân viên</button>
             </div>
+
             <div class="card shadow">
                 <div class="card-header text-center">
-                    <p class="fs-4">Danh sách tài khoản</p>
+                    <p class="fs-4" id="tableTitle">Danh sách tài khoản Người dùng</p>
+
                     <!-- Thông báo thành công -->
                     <th:block th:if="${session.succMsg}">
                         <p class="text-success fw-bold" th:text="${session.succMsg}"></p>
@@ -31,37 +63,68 @@
                         <p class="text-danger fw-bold" th:text="${session.errorMsg}"></p>
                         <div th:with="commonService=${@commonServiceImpl}">
                             <div th:if="${commonService.removeSessionMessage()}"></div>
-                        </div>                                
+                        </div>
                     </th:block>
-                    <div class="cart-body">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Thứ tự</th>
-                                    <th scope="col">Ảnh người dùng</th>
-                                    <th scope="col">Tên</th>
-                                    <th scope="col">Email</th>
-                                    <th scope="col">SĐT</th>
-                                    <th scope="col">Trạng thái</th>
-                                    <th scope="col">Hành động</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="u,c:${users}">
-                                    <th scope="row">[[${c.count}]]</th>
-                                    <td><img th:src="@{'/img/profile_img/'+${u.profileImage}}" height="120px" width="120px"></td>
-                                    <td>[[${u.name}]]</td>
-                                    <td>[[${u.email}]]</td>
-                                    <td>[[${u.phoneNumber}]]</td>
-                                    <td th:text="${u.isEnable ? 'Đang kích hoạt' : 'Không kích hoạt'}"></td>
-                                    <td>
-                                        <a th:href="@{/admin/updateSts(status=true, id=${u.id})}" class="btn btn-sm btn-primary">Kích hoạt</a>
-                                        <a th:href="@{/admin/updateSts(status=false, id=${u.id})}" class="btn btn-sm btn-danger">Không kích hoạt</a>
-                                    </td>                                    
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                </div>
+
+                <div class="card-body">
+                    <!-- Bảng danh sách Người dùng -->
+                    <table class="table table-hover" id="userTable">
+                        <thead>
+                            <tr>
+                                <th>Thứ tự</th>
+                                <th>Ảnh</th>
+                                <th>Tên</th>
+                                <th>Email</th>
+                                <th>SĐT</th>
+                                <th>Trạng thái</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="u, c : ${users}">
+                                <td>[[${c.count}]]</td>
+                                <td><img th:src="@{'/img/profile_img/' + ${u.profileImage}}" height="50" width="50"></td>
+                                <td>[[${u.name}]]</td>
+                                <td>[[${u.email}]]</td>
+                                <td>[[${u.phoneNumber}]]</td>
+                                <td th:text="${u.isEnable ? 'Đang kích hoạt' : 'Không kích hoạt'}"></td>
+                                <td>
+                                    <a th:href="@{/admin/updateSts(status=true, id=${u.id})}" class="btn btn-sm btn-primary">Kích hoạt</a>
+                                    <a th:href="@{/admin/updateSts(status=false, id=${u.id})}" class="btn btn-sm btn-danger">Không kích hoạt</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Bảng danh sách Nhân viên -->
+                    <table class="table table-hover" id="staffTable" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Thứ tự</th>
+                                <th>Ảnh</th>
+                                <th>Tên</th>
+                                <th>Email</th>
+                                <th>SĐT</th>
+                                <th>Trạng thái</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="s, c : ${staff}">
+                                <td>[[${c.count}]]</td>
+                                <td><img th:src="@{'/img/profile_img/' + ${s.profileImage}}" height="50" width="50"></td>
+                                <td>[[${s.name}]]</td>
+                                <td>[[${s.email}]]</td>
+                                <td>[[${s.phoneNumber}]]</td>
+                                <td th:text="${s.isEnable ? 'Đang kích hoạt' : 'Không kích hoạt'}"></td>
+                                <td>
+                                    <a th:href="@{/admin/updateSts(status=true, id=${s.id})}" class="btn btn-sm btn-primary">Kích hoạt</a>
+                                    <a th:href="@{/admin/updateSts(status=false, id=${s.id})}" class="btn btn-sm btn-danger">Không kích hoạt</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

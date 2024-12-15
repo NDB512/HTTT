@@ -166,7 +166,8 @@ public class OrderServiceImpl implements OrderService{
 
     @Override
     public List<SalesReportDto> generateSalesReport(LocalDateTime startDate, LocalDateTime endDate) {
-        List<ProductOrder> orders = productOrderRepository.findOrdersWithinDateRange(startDate, endDate);
+        // Lọc đơn hàng trong khoảng thời gian và có trạng thái "Đã nhận đơn hàng"
+        List<ProductOrder> orders = productOrderRepository.findOrdersWithinDateRangeAndStatus(startDate, endDate, "Đã nhận đơn hàng");
     
         Map<String, SalesReportDto> reportMap = new HashMap<>();
         for (ProductOrder order : orders) {

@@ -121,14 +121,20 @@ public class CommonUtil {
                        .append("</tr>");
                 }
     
-                msg.append("</table>")
-                   .append("<p>Tiền giảm: <strong>").append(productOrder.getDiscount()).append(" Đ</strong></p>")
-                   .append("<p>Tiền vận chuyển: <strong>").append(productOrder.getDeliveryPrice()).append(" Đ</strong></p>")
+                msg.append("</table>");
+
+                if (productOrder.getDiscount() != null && productOrder.getDiscount() > 0) {
+                    msg.append("<p>Tiền giảm: <strong>").append(productOrder.getDiscount()).append(" Đ</strong></p>");
+                } else {
+                    msg.append("<p>Tiền giảm: <strong>Không có</strong></p>");
+                }
+                
+                msg.append("<p>Tiền vận chuyển: <strong>").append(productOrder.getDeliveryPrice()).append(" Đ</strong></p>")
                    .append("<p>Tổng giá trị: <strong>").append(productOrder.getTotalOrderPrice()).append(" Đ</strong></p>")
                    .append("<p>Phương thức thanh toán: <strong>").append(productOrder.getPaymentType()).append("</strong></p>")
                    .append("<p>Chúng tôi sẽ xử lý đơn hàng của bạn ngay lập tức!</p>");
-    
-                helper.setSubject("Hóa Đơn Đặt Hàng - Đang xử lý");
+                
+                helper.setSubject("Hóa Đơn Đặt Hàng - Đang xử lý");                
             } else if ("Hủy".equals(status)) {
                 // Nội dung email cho trạng thái "Hủy"
                 msg.append("<p>Xin chào!</p>")

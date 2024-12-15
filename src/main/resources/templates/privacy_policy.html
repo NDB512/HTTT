@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.thymeleaf.org" th:replace="~{base::layout(~{::section})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chính Sách Bảo Mật</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <section class="container py-5">
+        <div class="text-center mb-4 my-5">
+            <h1 class="display-4">Chính Sách Bảo Mật</h1>
+            <p class="lead">Chúng tôi cam kết bảo mật thông tin cá nhân của quý khách khi sử dụng dịch vụ và truy cập trang web của chúng tôi.</p>
+        </div>
+
+        <div class="accordion" id="privacyPolicyAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        1. Mục đích thu thập thông tin
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#privacyPolicyAccordion">
+                    <div class="accordion-body">
+                        Chúng tôi thu thập thông tin cá nhân nhằm cung cấp dịch vụ tốt nhất cho quý khách, bao gồm việc xử lý yêu cầu, cung cấp thông tin khuyến mãi, và nâng cao trải nghiệm người dùng.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingTwo">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        2. Phạm vi sử dụng thông tin
+                    </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#privacyPolicyAccordion">
+                    <div class="accordion-body">
+                        Thông tin cá nhân của quý khách chỉ được sử dụng trong nội bộ công ty và cho mục đích nêu trên. Chúng tôi không chia sẻ thông tin này cho bên thứ ba khi chưa có sự đồng ý của quý khách.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingThree">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        3. Thời gian lưu trữ thông tin
+                    </button>
+                </h2>
+                <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#privacyPolicyAccordion">
+                    <div class="accordion-body">
+                        Thông tin của quý khách sẽ được lưu trữ trong suốt thời gian cần thiết để cung cấp dịch vụ hoặc theo quy định của pháp luật.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingFour">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                        4. Quyền lợi của khách hàng
+                    </button>
+                </h2>
+                <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#privacyPolicyAccordion">
+                    <div class="accordion-body">
+                        Quý khách có quyền yêu cầu chúng tôi cung cấp, chỉnh sửa hoặc xóa bỏ thông tin cá nhân của mình bất kỳ lúc nào.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingFive">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                        5. Cam kết bảo mật thông tin
+                    </button>
+                </h2>
+                <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#privacyPolicyAccordion">
+                    <div class="accordion-body">
+                        Chúng tôi sử dụng các biện pháp kỹ thuật và tổ chức hợp lý để bảo vệ thông tin cá nhân của quý khách khỏi truy cập trái phép, mất mát hoặc lạm dụng.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

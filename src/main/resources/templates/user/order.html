@@ -9,6 +9,9 @@
 </head>
 <body class="bg-light">
     <section>
+        <!-- Đặt jQuery trước các thư viện khác sử dụng jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
         <div class="container mt-5 p-5 bg-white shadow rounded">    
             <div class="row">
                 <form action="/user/save-order" method="post" id="userRegister" novalidate>
@@ -72,7 +75,7 @@
                                                 <option value="ONLINE">Thanh toán online</option>
                                             </select>
                                         </div>
-                                        <button type="submit" class="btn btn-primary w-100 fw-bold">Đặt hàng</button>
+                                        <button type="submit" class="btn btn-primary w-100 fw-bold" id="placeOrderBtn">Đặt hàng</button>
                                     </div>
                                 </div>
                             </div>
@@ -96,16 +99,30 @@
                             <p id="couponMessage" class="text-success mt-2" th:if="${discount > 0}">
                                 Bạn đã được giảm [[${discount}]] Đ với mã "[[${couponCode}]]"
                             </p>
-                            <p id="couponError" class="text-danger mt-2" th:if="${error}">
-                                [[${error}]]
-                            </p>
+                            <p id="couponError" class="text-danger mt-2" th:if="${error}">[[${error}]]</p>
                         </div>
                     </div>
                 </div>                
             </div>
         </div>
+        <script>
+            // Đảm bảo mã JS được gọi sau khi trang đã tải xong
+            $(document).ready(function() {
+                // Khi người dùng nhấn nút "Đặt hàng"
+                $("#userRegister").submit(function(event) {
+                    // Hiển thị thông báo xác nhận
+                    var confirmOrder = confirm("Bạn có chắc chắn muốn đặt hàng?");
+                    if (!confirmOrder) {
+                        event.preventDefault();  // Ngừng việc gửi form nếu người dùng không xác nhận
+                    } else {
+                        // Vô hiệu hóa nút "Đặt hàng" khi người dùng nhấn xác nhận
+                        $("#placeOrderBtn").prop("disabled", true);
+                    }
+                });
+            });
+        </script>
     </section>
-
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

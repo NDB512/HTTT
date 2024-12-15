@@ -20,4 +20,10 @@ public interface ProductOrderRepository extends JpaRepository<ProductOrder, Inte
     @Query("SELECT po FROM ProductOrder po WHERE po.orderedDay BETWEEN :startDate AND :endDate")
     List<ProductOrder> findOrdersWithinDateRange(@Param("startDate") LocalDateTime startDate,
                                                  @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT po FROM ProductOrder po WHERE po.orderedDay BETWEEN :startDate AND :endDate AND po.status = :status")
+    List<ProductOrder> findOrdersWithinDateRangeAndStatus(@Param("startDate") LocalDateTime startDate,
+                                                       @Param("endDate") LocalDateTime endDate,
+                                                       @Param("status") String status);
+
 }

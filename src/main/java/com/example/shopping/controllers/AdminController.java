@@ -369,6 +369,8 @@ public class AdminController {
     @GetMapping("/users")
     public String getAllUsers(Model model){
         List<UserDtls> users = userService.getUsers("ROLE_USER");
+        List<UserDtls> staff = userService.getUsers("ROLE_STAFF");
+        model.addAttribute("staff", staff);
         model.addAttribute("users", users);
         return "admin/users";
     }
@@ -538,32 +540,32 @@ public class AdminController {
 
     @GetMapping("/revenue")
     public String revenue(@RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime startDate,
-                        @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime endDate,
-                        Model model) {
+                          @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime endDate,
+                          Model model) {
         // Nếu không nhập thời gian, lấy mặc định 1 tháng gần nhất
         if (startDate == null) {
-            startDate = LocalDateTime.now().minusMonths(1).withHour(0).withMinute(0).withSecond(0);
+            startDate = LocalDateTime.now().minusMonths(12).withHour(0).withMinute(0).withSecond(0);
         }
         if (endDate == null) {
             endDate = LocalDateTime.now().withHour(23).withMinute(59).withSecond(59);
         }
-
+    
         // Định dạng lại ngày tháng theo kiểu "dd-MM-yyyy"
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         String formattedStartDate = startDate.toLocalDate().format(formatter);
         String formattedEndDate = endDate.toLocalDate().format(formatter);
-
+    
         // Lấy dữ liệu báo cáo doanh thu từ OrderService
         List<SalesReportDto> revenueReport = orderService.generateSalesReport(startDate, endDate);
-
+    
         // Đưa dữ liệu vào model để hiển thị trong view
         model.addAttribute("revenueReport", revenueReport);
         model.addAttribute("startDate", formattedStartDate);  // Đưa ngày đã định dạng vào model
         model.addAttribute("endDate", formattedEndDate);
-
+    
         return "/admin/revenue";
     }
-
+    
     @PostMapping("/revenue")
     public String filterRevenue(@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
                                 @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
@@ -571,18 +573,18 @@ public class AdminController {
         // Chuyển đổi LocalDate sang LocalDateTime
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
-
+    
         // Lấy dữ liệu báo cáo doanh thu từ OrderService theo khoảng thời gian lọc
         List<SalesReportDto> revenueReport = orderService.generateSalesReport(startDateTime, endDateTime);
-
+    
         // Đưa dữ liệu vào model để hiển thị trong view
         model.addAttribute("revenueReport", revenueReport);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
-
+    
         return "/admin/revenue"; // Trả lại view với báo cáo đã lọc
     }
-
+    
     // Hiển thị danh sách phiếu nhập kho
     @GetMapping("/warehouseReportList")
     public String viewWarehouseReceiptsList(Model model, @RequestParam(defaultValue = "") String ch,

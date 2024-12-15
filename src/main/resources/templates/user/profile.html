@@ -4,6 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thành công</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+
+        /* Các nút xóa thêm hiệu ứng */
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: scale(1.05);
+        }
+
+        /* Tạo kiểu cho bảng */
+        .table th {
+            width: 30%;
+            background-color: #f8f9fa;
+        }
+
+        .table td {
+            width: 70%;
+        }
+
+        /* Bảng địa chỉ */
+        .address-table th, .address-table td {
+            padding: 8px;
+            text-align: center;
+        }
+
+        .address-table th {
+            background-color: #f8f9fa;
+        }
+
+        /* Hiệu ứng cho thẻ hr */
+        hr {
+            border-top: 2px solid #007bff;
+        }
+
+        /* Các thành phần chung */
+        .card-body {
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .text-custom {
+            color: #007bff;
+        }
+    </style>
 </head>
 <body>
     <section>
@@ -12,34 +64,42 @@
                 <div class="col-md-10 offset-md-1">
                     <div class="card">
                         <div class="card-body">
-                            <p class="fs-3 text-center">Thông tin cá nhân</p>
-                            <div class="text-center">
-                                <!-- Thông báo thành công -->
-                                <th:block th:if="${session.succMsg}">
-                                    <p class="text-success fw-bold" th:text="${session.succMsg}"></p>
-                                    <div th:with="commonService=${@commonServiceImpl}">
-                                        <div th:if="${commonService.removeSessionMessage()}"></div>
-                                    </div>
-                                </th:block>
+                            <h3 class="text-center mb-4 text-custom">Thông tin cá nhân</h3>
 
-                                <!-- Thông báo lỗi -->
-                                <th:block th:if="${session.errorMsg}">
-                                    <p class="text-danger fw-bold" th:text="${session.errorMsg}"></p>
-                                    <div th:with="commonService=${@commonServiceImpl}">
-                                        <div th:if="${commonService.removeSessionMessage()}"></div>
-                                    </div>                                
-                                </th:block>
-                            </div>
-                            
+                            <!-- Thông báo thành công -->
+                            <th:block th:if="${session.succMsg}">
+                                <p class="text-success fw-bold" th:text="${session.succMsg}"></p>
+                                <div th:with="commonService=${@commonServiceImpl}">
+                                    <div th:if="${commonService.removeSessionMessage()}"></div>
+                                </div>
+                            </th:block>
+
+                            <!-- Thông báo lỗi -->
+                            <th:block th:if="${session.errorMsg}">
+                                <p class="text-danger fw-bold" th:text="${session.errorMsg}"></p>
+                                <div th:with="commonService=${@commonServiceImpl}">
+                                    <div th:if="${commonService.removeSessionMessage()}"></div>
+                                </div>                                
+                            </th:block>
+
                             <hr>
                             <div class="text-center">
                                 <img th:src="@{'/img/profile_img/'+${user.profileImage}}" alt="" style="width: 110px; height: 110px; border-radius: 50%;" class="border p-2">
                             </div>
 
-                            <div class="col-md-10 offset-md-1 mt-4">
+                            <div class="mt-4">
                                 <form action="/user/update-profile" method="post" enctype="multipart/form-data">
                                     <table class="table table-borderless">
                                         <tbody>
+
+                                            <tr>
+                                                <th scope="row">Email</th>
+                                                <td>:</td>
+                                                <td>
+                                                    <input type="text" name="email" class="form-control" th:value="${user.email}" readonly>
+                                                </td>
+                                            </tr>
+
                                             <tr>
                                                 <th scope="row">Họ Tên</th>
                                                 <td>:</td>
@@ -53,14 +113,6 @@
                                                 <td>:</td>
                                                 <td>
                                                     <input type="text" name="phoneNumber" class="form-control" th:value="${user.phoneNumber}">
-                                                </td>
-                                            </tr>
-
-                                            <tr>
-                                                <th scope="row">Email</th>
-                                                <td>:</td>
-                                                <td>
-                                                    <input type="text" name="email" class="form-control" th:value="${user.email}" readonly>
                                                 </td>
                                             </tr>
                                             
@@ -93,66 +145,79 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <hr>
+
                 <div class="col-md-10 offset-md-1 mt-1">
-                    <div class="row">
-                        <p class="text-center fs-3">Đổi mật khẩu</p>
-                        <div class="col-md-6 offset-md-3">
-                            <form action="/user/update-password" method="post" enctype="multipart/form-data">
-                                <table class="table table-borderless">
-                                    <tbody>
-                                        <tr>
-                                            <th scope="row">Mật khẩu hiện tại</th>
-                                            <td>:</td>
-                                            <td><input type="password" name="currentPassword" class="form-control"></td>
-                                        </tr>
+                    <h3 class="text-center mb-4 text-custom">Đổi mật khẩu</h3>
+                    <div class="col-md-6 offset-md-3">
+                        <form action="/user/update-password" method="post" enctype="multipart/form-data">
+                            <table class="table table-borderless">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Mật khẩu hiện tại</th>
+                                        <td>:</td>
+                                        <td><input type="password" name="currentPassword" class="form-control"></td>
+                                    </tr>
     
-                                        <tr>
-                                            <th scope="row">Mật khẩu mới</th>
-                                            <td>:</td>
-                                            <td><input type="password" name="newPassword" class="form-control"></td>
-                                        </tr>
+                                    <tr>
+                                        <th scope="row">Mật khẩu mới</th>
+                                        <td>:</td>
+                                        <td><input type="password" name="newPassword" class="form-control"></td>
+                                    </tr>
     
-                                        <tr>
-                                            <th scope="row">Xác nhận mật khẩu</th>
-                                            <td>:</td>
-                                            <td><input type="password" name="confirmPassword" class="form-control"></td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="3" class="text-center">
-                                                <button type="submit" class="btn btn-sm bg-primary text-light">Xác nhận mật khẩu</button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </form>
-                        </div>
+                                    <tr>
+                                        <th scope="row">Xác nhận mật khẩu</th>
+                                        <td>:</td>
+                                        <td><input type="password" name="confirmPassword" class="form-control"></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="text-center">
+                                            <button type="submit" class="btn btn-sm bg-primary text-light">Xác nhận mật khẩu</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </form>
                     </div>
                 </div>
+
                 <!-- Liên kết thêm địa chỉ -->
-<a href="/user/add-address">Thêm địa chỉ</a>
+                <div class="text-center mt-4">
+                    <a href="/user/add-address" class="btn btn-link text-custom">Thêm địa chỉ</a>
+                </div>
 
-<!-- Danh sách địa chỉ -->
-<table>
-    <tr>
-        <th>Tên</th>
-        <th>Địa chỉ</th>
-        <th>Chỉnh sửa</th>
-        <th>Xóa</th>
-    </tr>
-    <tr th:each="address : ${addresses}">
-        <td th:text="${address.name}"></td>
-        <td th:text="${address.street} + ', ' + ${address.ward} + ', ' + ${address.district} + ', ' + ${address.city}"></td>
-        <td><a th:href="@{/user/edit-address/{id}(id=${address.id})}">Chỉnh sửa</a></td>
-        <td>
-            <form th:action="@{/user/delete-address/{id}(id=${address.id})}" method="post">
-                <button type="submit">Xóa</button>
-            </form>
-        </td>
-    </tr>
-</table>
-
+                <!-- Danh sách địa chỉ -->
+                <div class="mt-4">
+                    <table class="table table-striped address-table">
+                        <thead>
+                            <tr>
+                                <th>Tên</th>
+                                <th>Địa chỉ</th>
+                                <th>Chỉnh sửa</th>
+                                <th>Xóa</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="address : ${addresses}">
+                                <td th:text="${address.name}"></td>
+                                <td th:text="${address.street} + ', ' + ${address.ward} + ', ' + ${address.district} + ', ' + ${address.city}"></td>
+                                <td><a th:href="@{/user/edit-address/{id}(id=${address.id})}" class="btn btn-warning btn-sm">Chỉnh sửa</a></td>
+                                <td>
+                                    <form th:action="@{/user/delete-address/{id}(id=${address.id})}" method="post" onsubmit="return confirmDelete()">
+                                        <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                                    </form>
+                                </td>
+                                
+                                <script>
+                                    function confirmDelete() {
+                                        return confirm("Bạn chắc chắn muốn xóa địa chỉ này?");
+                                    }
+                                </script>                                
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </section>
