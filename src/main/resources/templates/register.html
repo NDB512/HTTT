@@ -7,6 +7,7 @@
 </head>
 <body>
     <section>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <div class="container mt-5 p-5">    
             <div class="row">
                 <div class="col-md-5 p-5">
@@ -60,17 +61,39 @@
                                     <label class="form-label">Hình ảnh</label> 
                                     <input class="form-control" type="file" name="img">
                                 </div>
-                                <button type="submit" class="btn bg-primary text-white col-md-12">Đăng ký</button>
+                                <button type="submit" class="btn bg-primary text-white col-md-12" id="registerBtn">Đăng ký</button>
                             </form>
 
                             <!-- Form Nhập OTP -->
-                            <form action="/verifyOtp" method="post" th:unless="${session.succMsg == null}">
+                            <form action="/verifyOtp" method="post" id="otpForm" th:unless="${session.succMsg == null}">
                                 <div class="mb-3">
-                                    <label class="form-label">Nhập mã OTP</label> 
+                                    <label class="form-label">Nhập mã OTP</label>
                                     <input class="form-control" type="text" name="otp" required>
                                 </div>
-                                <button type="submit" class="btn bg-primary text-white col-md-12">Xác nhận OTP</button>
+                                <button type="submit" class="btn bg-primary text-white col-md-12" id="otpSubmitBtn">Xác nhận OTP</button>
                             </form>
+
+                            <script>
+                                document.addEventListener("DOMContentLoaded", function () {
+                                    const registerForm = document.getElementById("registerForm");
+                                    const otpForm = document.getElementById("otpForm");
+                                    const registerBtn = document.getElementById("registerBtn");
+                            
+                                    // Kiểm tra xem form OTP có hiển thị không
+                                    if (otpForm) {
+                                        // Vô hiệu hóa nút Đăng ký
+                                        if (registerBtn) {
+                                            registerBtn.disabled = true;
+                                        }
+                                    }
+                            
+                                    // Tự động focus vào ô nhập OTP nếu form OTP hiện lên
+                                    if (otpForm) {
+                                        otpForm.querySelector('input[name="otp"]').focus();
+                                    }
+                                });
+                            </script>
+                            
                         </div>
 
                         <div class="card-footer text-center">

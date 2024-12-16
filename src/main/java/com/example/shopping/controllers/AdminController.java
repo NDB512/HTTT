@@ -106,7 +106,6 @@ public class AdminController {
 
     @SuppressWarnings("null")
     @PostMapping("/saveCategory")
-    @PreAuthorize("hasRole('ADMIN')")
     public String saveCategory(@ModelAttribute Category category, @RequestParam MultipartFile file, HttpSession session) throws IOException {
 
         // Kiểm tra tệp hình ảnh và đặt tên mặc định nếu không có tệp
@@ -145,7 +144,6 @@ public class AdminController {
     }
 
     @GetMapping("/deleteCategory/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public String deleteCategory(@PathVariable int id, HttpSession session){
         
         Boolean deleteCategory = categoryService.deleteCategory(id);
@@ -167,7 +165,6 @@ public class AdminController {
     }
 
     @PostMapping("/updateCategory")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public String updateCategory(@ModelAttribute Category category, @RequestParam("file") MultipartFile file, HttpSession session) {
         Category oldCategory = categoryService.getCategoryById(category.getId());
         String imageName = file.isEmpty() ? oldCategory.getImageName() : file.getOriginalFilename();
@@ -207,7 +204,6 @@ public class AdminController {
         
     //Phần product
     @GetMapping("/addProduct")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public String addProduct(Model model){
         List<Category> categories = categoryService.getAllCategories();
         model.addAttribute("categories",categories);
@@ -215,7 +211,6 @@ public class AdminController {
     }
 
     @PostMapping("/saveProduct")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public String saveProduct(@ModelAttribute Product product, @RequestParam("file") MultipartFile image, 
                           @RequestParam("category") String categoryName,
                           @RequestParam("productTaxRate") double productTaxRate, 
@@ -310,7 +305,6 @@ public class AdminController {
     }
 
     @GetMapping("/deleteProduct/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public String deleteProduct(@PathVariable int id, HttpSession session){
         Boolean deleteProduct = productService.deleteProduct(id);
         if(deleteProduct){
@@ -323,7 +317,6 @@ public class AdminController {
     }
 
     @GetMapping("/editProduct/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public String editProduct(Model model ,@PathVariable int id, HttpSession session){
         model.addAttribute("product", productService.getProductByItem(id));
         model.addAttribute("categories", categoryService.getAllCategories());
@@ -331,7 +324,6 @@ public class AdminController {
         return "admin/edit_product";
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/updateProduct")
     public String updateProduct(@ModelAttribute Product product, @RequestParam("file") MultipartFile image, HttpSession session){
 
@@ -406,7 +398,6 @@ public class AdminController {
         return "admin/orderList";
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     @GetMapping("/orderdetail/{id}")
     public String getOrderDetails(@PathVariable("id") int orderId, Model model) {
         try {
@@ -420,7 +411,6 @@ public class AdminController {
     }
 
     @SuppressWarnings("null")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     @PostMapping("/update-order-status")
     public String updateOrderStatus(@RequestParam int id, @RequestParam String st, HttpSession session) {
         
@@ -458,7 +448,6 @@ public class AdminController {
         return "redirect:/admin/orderList";
     }    
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     @GetMapping("/search-order")
     public String searchProduct(@RequestParam String orderId, Model model, HttpSession session, @RequestParam(name = "pageNo", defaultValue = "0") int pageNo,
     @RequestParam(name = "pageSize", defaultValue = "5") int pageSize){
@@ -542,7 +531,7 @@ public class AdminController {
     public String revenue(@RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime startDate,
                           @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime endDate,
                           Model model) {
-        // Nếu không nhập thời gian, lấy mặc định 1 tháng gần nhất
+        // Nếu không nhập thời gian, lấy mặc định 1 năm gần nhất
         if (startDate == null) {
             startDate = LocalDateTime.now().minusMonths(12).withHour(0).withMinute(0).withSecond(0);
         }
@@ -550,17 +539,16 @@ public class AdminController {
             endDate = LocalDateTime.now().withHour(23).withMinute(59).withSecond(59);
         }
     
-        // Định dạng lại ngày tháng theo kiểu "dd-MM-yyyy"
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         String formattedStartDate = startDate.toLocalDate().format(formatter);
         String formattedEndDate = endDate.toLocalDate().format(formatter);
     
-        // Lấy dữ liệu báo cáo doanh thu từ OrderService
+        // Lấy dữ liệu báo cáo doanh thu
         List<SalesReportDto> revenueReport = orderService.generateSalesReport(startDate, endDate);
     
         // Đưa dữ liệu vào model để hiển thị trong view
         model.addAttribute("revenueReport", revenueReport);
-        model.addAttribute("startDate", formattedStartDate);  // Đưa ngày đã định dạng vào model
+        model.addAttribute("startDate", formattedStartDate);
         model.addAttribute("endDate", formattedEndDate);
     
         return "/admin/revenue";

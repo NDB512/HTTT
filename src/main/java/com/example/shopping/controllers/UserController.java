@@ -315,7 +315,7 @@ public class UserController {
         UserDtls user = getLoggedInUserDetails(principal);
         addressService.createAddress(addressRequest, user.getId());
         redirectAttributes.addFlashAttribute("succMsg", "Địa chỉ đã được thêm thành công!");
-        return "redirect:/user/profile";  // Quay lại trang profile sau khi thêm
+        return "redirect:/user/add-address";
     }
 
     // Xóa địa chỉ

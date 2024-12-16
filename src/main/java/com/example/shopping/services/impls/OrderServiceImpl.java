@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -168,21 +169,55 @@ public class OrderServiceImpl implements OrderService{
     public List<SalesReportDto> generateSalesReport(LocalDateTime startDate, LocalDateTime endDate) {
         // Lọc đơn hàng trong khoảng thời gian và có trạng thái "Đã nhận đơn hàng"
         List<ProductOrder> orders = productOrderRepository.findOrdersWithinDateRangeAndStatus(startDate, endDate, "Đã nhận đơn hàng");
-    
+
         Map<String, SalesReportDto> reportMap = new HashMap<>();
+        Map<String, Integer> productSales = new HashMap<>();
+        Map<String, Integer> userOrders = new HashMap<>();
+
         for (ProductOrder order : orders) {
-            // Định dạng ngày làm khóa (có thể là yyyy-MM-dd, yyyy-MM, hoặc yyyy)
+            // Định dạng ngày làm khóa
             String reportKey = order.getOrderedDay().toLocalDate().toString();
-    
-            // Tạo mới hoặc cập nhật báo cáo
-            SalesReportDto dto = reportMap.getOrDefault(reportKey, new SalesReportDto(reportKey, 0.0, 0));
+
+            // Tạo mới hoặc cập nhật báo cáo doanh thu
+            SalesReportDto dto = reportMap.getOrDefault(reportKey, new SalesReportDto(reportKey, 0.0, 0, null, null));
             dto.setTotalRevenue(dto.getTotalRevenue() + order.getTotalOrderPrice());
             dto.setTotalOrders(dto.getTotalOrders() + 1);
-    
+
             reportMap.put(reportKey, dto);
+
+            // Tính toán số lượng bán của từng sản phẩm
+            for (OrderItem item : order.getItems()) {
+                String productName = item.getProduct().getTitle();
+                productSales.put(productName, productSales.getOrDefault(productName, 0) + item.getQuantity());
+            }
+
+            // Tính số lượng đơn hàng của từng user
+            String userName = order.getUser().getName();
+            userOrders.put(userName, userOrders.getOrDefault(userName, 0) + 1);
         }
-    
-        return new ArrayList<>(reportMap.values());
+
+        // Tìm 3 sản phẩm bán chạy nhất
+        List<Map.Entry<String, Integer>> sortedProducts = productSales.entrySet().stream()
+            .sorted((entry1, entry2) -> Integer.compare(entry2.getValue(), entry1.getValue()))
+            .limit(3)
+            .collect(Collectors.toList());
+
+        // Tìm 3 người dùng có số đơn hàng cao nhất
+        List<Map.Entry<String, Integer>> sortedUsers = userOrders.entrySet().stream()
+            .sorted((entry1, entry2) -> Integer.compare(entry2.getValue(), entry1.getValue()))
+            .limit(3)
+            .collect(Collectors.toList());
+
+        // Đưa thông tin sản phẩm và user bán chạy nhất vào báo cáo
+        List<SalesReportDto> salesReports = new ArrayList<>(reportMap.values());
+
+        // Thêm thông tin 3 sản phẩm bán chạy và 3 người dùng vào báo cáo
+        for (SalesReportDto dto : salesReports) {
+            dto.setTopProducts(sortedProducts);
+            dto.setTopUsers(sortedUsers);
+        }
+
+        return salesReports;
     }
     
 }

@@ -19,6 +19,9 @@
                         <div class="col-md-6">
                             <div class="p-4 border rounded bg-light">
                                 <h2 class="text-center text-primary">Địa chỉ giao hàng</h2>
+                                <div class="text-center mt-4">
+                                    <a href="/user/add-address" class="btn btn-link text-custom">Thêm địa chỉ</a>
+                                </div>
                                 <hr>
                                 <div class="mb-4">
                                     <label for="address" class="form-label fw-bold">Chọn địa chỉ nhận hàng</label>
@@ -53,9 +56,9 @@
                                                 <tr>
                                                     <td class="fw-bold">Giảm giá</td>
                                                     <td>
-                                                        <span th:if="${discount != null and discount > 0}">[[${discount}]] Đ</span>
+                                                        <span th:text="${discount != null && discount > 0 ? discount + ' Đ' : '0 Đ'}"></span>
                                                     </td>
-                                                </tr>
+                                                </tr>                                                
                                                 <tr class="table-dark">
                                                     <td class="fw-bold text-white">Tổng tiền thanh toán</td>
                                                     <td class="text-white">[[${totalOrderPrice}]] Đ</td>
@@ -110,13 +113,11 @@
             $(document).ready(function() {
                 // Khi người dùng nhấn nút "Đặt hàng"
                 $("#userRegister").submit(function(event) {
-                    // Hiển thị thông báo xác nhận
                     var confirmOrder = confirm("Bạn có chắc chắn muốn đặt hàng?");
                     if (!confirmOrder) {
-                        event.preventDefault();  // Ngừng việc gửi form nếu người dùng không xác nhận
+                        event.preventDefault(); // Dừng gửi form
                     } else {
-                        // Vô hiệu hóa nút "Đặt hàng" khi người dùng nhấn xác nhận
-                        $("#placeOrderBtn").prop("disabled", true);
+                        $("#placeOrderBtn").prop("disabled", true).text("Đang xử lý...");
                     }
                 });
             });
