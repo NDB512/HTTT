@@ -170,5 +170,10 @@ public class ProductServiceImpl implements ProductService{
             return productRepository.findAll(); // Nếu không có danh mục, trả về tất cả sản phẩm
         }
         return productRepository.findByCategory(category); // Tìm sản phẩm theo danh mục
+    }
+
+    @Override
+    public boolean isProductTitleExist(String title) {
+        return productRepository.existsByTitle(title);
     }    
 }

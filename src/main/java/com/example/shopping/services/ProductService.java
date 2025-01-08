@@ -30,4 +30,6 @@ public interface ProductService {
     public Page<Product> getAllProductPage(int pageNo, int pageSize);
 
     public List<Product> getProductsByCategory(String category);
+
+    public boolean isProductTitleExist(String title);
 }

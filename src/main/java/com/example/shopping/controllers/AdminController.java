@@ -212,12 +212,11 @@ public class AdminController {
 
     @PostMapping("/saveProduct")
     public String saveProduct(@ModelAttribute Product product, @RequestParam("file") MultipartFile image, 
-                          @RequestParam("category") String categoryName,
-                          @RequestParam("productTaxRate") double productTaxRate, 
-                          @RequestParam("profitMargin") double profitMargin, 
-                          HttpSession session) throws IOException {
-
-        
+                              @RequestParam("category") String categoryName,
+                              @RequestParam("productTaxRate") double productTaxRate, 
+                              @RequestParam("profitMargin") double profitMargin, 
+                              HttpSession session) throws IOException {
+    
         // Kiểm tra đầu vào của productTaxRate và profitMargin
         if (productTaxRate < 0 || productTaxRate > 100) {
             session.setAttribute("errorMsg", "Lỗi: Tỷ lệ thuế phải nằm trong khoảng từ 0 đến 100.");
@@ -228,18 +227,23 @@ public class AdminController {
             session.setAttribute("errorMsg", "Lỗi: Tỷ lệ lợi nhuận phải nằm trong khoảng từ 0 đến 100.");
             return "redirect:/admin/addProduct";
         }
-                            
+    
+        // Kiểm tra xem tên sản phẩm đã tồn tại chưa
+        if (productService.isProductTitleExist(product.getTitle())) {
+            session.setAttribute("errorMsg", "Lỗi: Sản phẩm với tên này đã tồn tại.");
+            return "redirect:/admin/addProduct";
+        }
+    
         // Kiểm tra tệp hình ảnh và đặt tên mặc định nếu không có tệp
         String imageName = image.isEmpty() ? "default.jpg" : image.getOriginalFilename();
         product.setImage(imageName);
-
+    
         double originalPrice = product.getPrice();
-
         double taxAmount = originalPrice * (productTaxRate) / 100;
-
+    
         // Tính lợi nhuận mong muốn
         double profitAmount = originalPrice * profitMargin / 100;
-
+    
         // Tính giá cuối cùng
         double finalPrice = originalPrice + taxAmount + profitAmount;
     
@@ -262,7 +266,7 @@ public class AdminController {
         }
     
         return "redirect:/admin/addProduct";
-    }
+    }    
     
     private void saveImage(MultipartFile image, String imageName, HttpSession session) throws IOException {
         Path directoryPath = Paths.get("src/main/resources/static/img/product_img");
@@ -336,6 +340,12 @@ public class AdminController {
         if (product.getProfitMargin() < 0 || product.getProfitMargin() > 100) {
             session.setAttribute("errorMsg", "Tỷ lệ lợi nhuận không hợp lệ!");
             return "redirect:/admin/editProduct/" + product.getId();
+        }
+
+        // Kiểm tra xem tên sản phẩm đã tồn tại chưa
+        if (productService.isProductTitleExist(product.getTitle())) {
+            session.setAttribute("errorMsg", "Lỗi: Sản phẩm với tên này đã tồn tại.");
+            return "redirect:/admin/addProduct";
         }
 
         product.setUpdateDate(LocalDateTime.now());
@@ -478,12 +488,14 @@ public class AdminController {
         return "admin/orderList";   
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @GetMapping("/add-staff")
     public String addStaff(){
         return "admin/add_staff";
     }
 
     @SuppressWarnings("null")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PostMapping("/saveStaff")
     public String saveStaff(@ModelAttribute UserDtls user, @RequestParam("img") MultipartFile file, HttpSession session
     , @RequestParam("confirmPassword") String confirmPassword) throws IOException {
