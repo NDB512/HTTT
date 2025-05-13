@@ -105,13 +105,13 @@
                                                 <div class="d-flex justify-content-center mb-4">
                                                     <p class="card-text text-center">
                                                         <span th:if="${p.discount > 0}" class="text-danger">
-                                                            [[${#strings.replace((p.finalPrice * (1 - p.discount / 100)) + '', '.0', '')}]] Đ
+                                                            [[${#numbers.formatInteger(p.finalPrice * (1 - p.discount / 100), 0, 'COMMA')}]] Đ
                                                         </span>
                                                         <span th:if="${p.discount > 0}" class="text-muted text-decoration-line-through">
-                                                            [[${#strings.replace((p.finalPrice) + '', '.0', '')}]] Đ
+                                                            [[${#numbers.formatInteger(p.finalPrice, 0, 'COMMA')}]] Đ
                                                         </span>
                                                         <span th:unless="${p.discount > 0}">
-                                                            [[${#strings.replace((p.finalPrice) + '', '.0', '')}]] Đ
+                                                            [[${#numbers.formatInteger(p.finalPrice, 0, 'COMMA')}]] Đ
                                                         </span>                                                        
                                                     </p>
                                                 </div>

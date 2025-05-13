@@ -170,6 +170,10 @@ public class OrderServiceImpl implements OrderService{
         // Lọc đơn hàng trong khoảng thời gian và có trạng thái "Đã nhận đơn hàng"
         List<ProductOrder> orders = productOrderRepository.findOrdersWithinDateRangeAndStatus(startDate, endDate, "Đã nhận đơn hàng");
 
+        if (orders == null || orders.isEmpty()) {
+            return new ArrayList<>(); // Trả về danh sách rỗng nếu không có dữ liệu
+        }
+
         Map<String, SalesReportDto> reportMap = new HashMap<>();
         Map<String, Integer> productSales = new HashMap<>();
         Map<String, Integer> userOrders = new HashMap<>();
@@ -198,20 +202,18 @@ public class OrderServiceImpl implements OrderService{
 
         // Tìm 3 sản phẩm bán chạy nhất
         List<Map.Entry<String, Integer>> sortedProducts = productSales.entrySet().stream()
-            .sorted((entry1, entry2) -> Integer.compare(entry2.getValue(), entry1.getValue()))
-            .limit(3)
-            .collect(Collectors.toList());
+                .sorted((entry1, entry2) -> Integer.compare(entry2.getValue(), entry1.getValue()))
+                .limit(3)
+                .collect(Collectors.toList());
 
         // Tìm 3 người dùng có số đơn hàng cao nhất
         List<Map.Entry<String, Integer>> sortedUsers = userOrders.entrySet().stream()
-            .sorted((entry1, entry2) -> Integer.compare(entry2.getValue(), entry1.getValue()))
-            .limit(3)
-            .collect(Collectors.toList());
+                .sorted((entry1, entry2) -> Integer.compare(entry2.getValue(), entry1.getValue()))
+                .limit(3)
+                .collect(Collectors.toList());
 
         // Đưa thông tin sản phẩm và user bán chạy nhất vào báo cáo
         List<SalesReportDto> salesReports = new ArrayList<>(reportMap.values());
-
-        // Thêm thông tin 3 sản phẩm bán chạy và 3 người dùng vào báo cáo
         for (SalesReportDto dto : salesReports) {
             dto.setTopProducts(sortedProducts);
             dto.setTopUsers(sortedUsers);
@@ -219,5 +221,4 @@ public class OrderServiceImpl implements OrderService{
 
         return salesReports;
     }
-    
 }

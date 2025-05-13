@@ -1,6 +1,7 @@
 package com.example.shopping.repositories;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,4 +25,8 @@ public interface ProductRepository extends JpaRepository<Product, Integer>{
             Pageable pageable);
 
     public boolean existsByTitle(String title);
+
+    public Optional<Product> findById(Long id);
+
+    public Product findByTitle(String title);
 }

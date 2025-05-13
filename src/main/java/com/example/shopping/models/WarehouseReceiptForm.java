@@ -38,7 +38,7 @@ public class WarehouseReceiptForm {
     @JoinColumn(name = "warehouse_receipt_id")
     private List<WarehouseReceiptItem> items = new ArrayList<>();
 
-    @Transient  // Đảm bảo rằng thuộc tính này không được lưu vào cơ sở dữ liệu
+    @Transient
     private String formattedDate;
 
 }

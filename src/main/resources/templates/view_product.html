@@ -183,7 +183,7 @@
 <body>
     <section>
         <div class="container shadow position-relative" style="margin-top: 70px; margin-bottom: 100px;">
-            <button class="close-btn" onclick="window.location.href='/products';">&times;</button>
+            <button class="close-btn" onclick="window.location.href='/products';">×</button>
             <div class="col-md-12 p-5">
                 <div class="row">
                     <!-- Thông báo thành công -->
@@ -225,9 +225,9 @@
                         </p>
 
                         <p class="price">
-                            Giá: [[${#strings.replace((product.finalPrice * (1 - product.discount / 100)) + '', '.0', '')}]] Đ
-                            <th:block th:if="${product.discount > 0}">
-                                <span class="fs-6 text-decoration-line-through text-secondary">[[${#strings.replace(product.finalPrice + '', '.0', '')}]] Đ</span>
+                            Giá: [[${#numbers.formatInteger(product.finalPrice * (1 - (product.discount != null ? product.discount : 0) / 100), 0, 'COMMA')}]] Đ
+                            <th:block th:if="${product.discount != null and product.discount > 0}">
+                                <span class="fs-6 text-decoration-line-through text-secondary">[[${#numbers.formatInteger(product.finalPrice, 0, 'COMMA')}]] Đ</span>
                                 <span class="text-success fs-6">[[${product.discount}]]% off</span>
                             </th:block>
                         </p>                        
@@ -249,14 +249,10 @@
                                 <th:block th:if="${user==null}">
                                     <a href="/signin" class="btn btn-danger">Thêm vào giỏ</a>
                                 </th:block>
-                            </th:block>
-
-                            <th:block th:if="${product.stock > 0}">
                                 <th:block th:unless="${user==null}">
                                     <a th:href="@{'/user/addCart?pid='+${product.id}+'&uid='+${user.id}}" class="btn btn-danger">Thêm vào giỏ</a>
                                 </th:block>
                             </th:block>
-
                             <th:block th:unless="${product.stock > 0}">
                                 <a href="#" class="btn btn-warning text-white">Hết hàng</a>
                             </th:block>
@@ -269,21 +265,26 @@
          <div class="col-md-12 mt-5">
             <h4 class="text-center">Sản phẩm liên quan</h4>
             <div class="row">
-                <th:block th:each="relatedProduct : ${relatedProducts}">
-                    <div class="col-md-3 mb-4">
-                        <div class="card h-100 shadow-sm border-light rounded">
-                            <img th:src="@{'/img/product_img/'+${relatedProduct.image}}" class="card-img-top" alt="Sản phẩm" style="height: 250px; object-fit: cover;">
-                            <div class="card-body d-flex flex-column">
-                                <h5 class="card-title text-center mb-3">[[${relatedProduct.title}]]</h5>
-                                <p class="text-center">
-                                    Giá: [[${relatedProduct.finalPrice}]] Đ
-                                </p>
-                                <div class="text-center mt-auto">
-                                    <a th:href="@{'/viewProduct/'+${relatedProduct.id}}" class="btn btn-primary w-100 py-2">Xem chi tiết</a>
+                <th:block th:if="${relatedProducts != null and relatedProducts.size() > 0}">
+                    <th:block th:each="relatedProduct : ${relatedProducts}">
+                        <div class="col-md-3 mb-4">
+                            <div class="card h-100 shadow-sm border-light rounded">
+                                <img th:src="@{'/img/product_img/'+${relatedProduct.image}}" class="card-img-top" alt="Sản phẩm" style="height: 250px; object-fit: cover;">
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title text-center mb-3">[[${relatedProduct.title}]]</h5>
+                                    <p class="text-center">
+                                        Giá: [[${#numbers.formatInteger(relatedProduct.finalPrice, 0, 'COMMA')}]] Đ
+                                    </p>
+                                    <div class="text-center mt-auto">
+                                        <a th:href="@{'/viewProduct/'+${relatedProduct.id}}" class="btn btn-primary w-100 py-2">Xem chi tiết</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </th:block>
+                </th:block>
+                <th:block th:unless="${relatedProducts != null and relatedProducts.size() > 0}">
+                    <p class="text-center text-muted">Hiện tại không có sản phẩm liên quan.</p>
                 </th:block>
             </div>
         </div>

@@ -32,4 +32,8 @@ public interface ProductService {
     public List<Product> getProductsByCategory(String category);
 
     public boolean isProductTitleExist(String title);
+
+    public Product getProductById(Long id);
+
+    public Product getProductByTitle(String title);
 }

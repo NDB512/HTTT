@@ -2,7 +2,9 @@ package com.example.shopping.controllers;
 
 import java.util.List;
 import java.util.UUID;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.security.Principal;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -117,10 +119,10 @@ public class HomeController {
     // Trang sản phẩm, hiển thị các sản phẩm theo danh mục nếu có
     @GetMapping("/products")
     public String product(Model model, 
-                          @RequestParam(value = "category", defaultValue = "") String category,
-                          @RequestParam(value = "ch", defaultValue = "") String ch,  // Thêm tham số tìm kiếm
-                          @RequestParam(name = "pageNo", defaultValue = "0") int pageNo,
-                          @RequestParam(name = "pageSize", defaultValue = "4") int pageSize) {
+                          @RequestParam(defaultValue = "") String category,
+                          @RequestParam(defaultValue = "") String ch,  // Thêm tham số tìm kiếm
+                          @RequestParam(defaultValue = "0") int pageNo,
+                          @RequestParam(defaultValue = "4") int pageSize) {
         
         List<Category> categories = categoryService.getAllActiveCategory();
         model.addAttribute("categories", categories);
@@ -193,7 +195,7 @@ public class HomeController {
     
             if (savedUser != null) {
                 // Chỉ định thư mục lưu trữ tệp ảnh
-                Path directoryPath = Paths.get("src/main/resources/static/img/profile_img");
+                Path directoryPath = Path.of("src/main/resources/static/img/profile_img");
                 if (!Files.exists(directoryPath)) {
                     Files.createDirectories(directoryPath); // Tạo thư mục nếu chưa tồn tại
                 }
@@ -220,7 +222,7 @@ public class HomeController {
     }
     
     @PostMapping("/verifyOtp")
-    public String verifyOtp(@RequestParam("otp") String otp, HttpSession session) {
+    public String verifyOtp(@RequestParam String otp, HttpSession session) {
         // Gọi Service để xác minh OTP
         UserDtls user = userService.verifyOtp(otp);
     

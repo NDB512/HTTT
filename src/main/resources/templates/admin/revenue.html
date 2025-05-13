@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Doanh thu</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,6 +15,11 @@
         h1 {
             text-align: center;
             color: #333;
+        }
+
+        h3 {
+            color: #333;
+            margin-top: 30px;
         }
 
         .container {
@@ -29,6 +35,8 @@
             display: flex;
             justify-content: center;
             margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .form-container label {
@@ -36,7 +44,7 @@
             margin-right: 10px;
         }
 
-        .form-container input {
+        .form-container input, .form-container select {
             padding: 8px;
             font-size: 16px;
             border: 1px solid #ccc;
@@ -56,6 +64,14 @@
 
         .form-container button:hover {
             background-color: #45a049;
+        }
+
+        .export-btn {
+            background-color: #007bff;
+        }
+
+        .export-btn:hover {
+            background-color: #0056b3;
         }
 
         table {
@@ -90,7 +106,6 @@
         table td:first-child {
             text-align: left;
         }
-
     </style>
 </head>
 <body>
@@ -105,12 +120,17 @@
         <div class="form-container">
             <form action="/admin/revenue" method="post">
                 <label for="startDate">Từ ngày:</label>
-                <input type="date" id="startDate" name="startDate" th:value="${startDate}">
+                <input type="date" id="startDate" name="startDate" th:value="${startDate}" required>
                 
                 <label for="endDate">Đến ngày:</label>
-                <input type="date" id="endDate" name="endDate" th:value="${endDate}">
+                <input type="date" id="endDate" name="endDate" th:value="${endDate}" required>
                 
                 <button type="submit">Xem báo cáo</button>
+            </form>
+            <form th:action="@{/admin/revenue/export}" method="get">
+                <input type="hidden" name="startDate" th:value="${startDate}">
+                <input type="hidden" name="endDate" th:value="${endDate}">
+                <button type="submit" class="export-btn">Xuất PDF</button>
             </form>
         </div>
 
@@ -124,44 +144,68 @@
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="report : ${revenueReport}">
-                    <td th:text="${report.date}"></td>
-                    <td th:text="${#numbers.formatDecimal(report.totalRevenue, 0, 0)} + ' Đ'"></td>
-                    <td th:text="${report.totalOrders}"></td>
-                </tr>
+                <th:block th:if="${not #lists.isEmpty(revenueReport)}">
+                    <tr th:each="report : ${revenueReport}">
+                        <td th:text="${report.date}"></td>
+                        <td th:text="${#numbers.formatInteger(report.totalRevenue, 0, 'COMMA')} + ' Đ'"></td>
+                        <td th:text="${report.totalOrders}"></td>
+                    </tr>
+                </th:block>
+                <th:block th:unless="${not #lists.isEmpty(revenueReport)}">
+                    <tr>
+                        <td colspan="3" class="text-center text-muted">Không có dữ liệu doanh thu trong khoảng thời gian này.</td>
+                    </tr>
+                </th:block>
             </tbody>
         </table>
 
         <!-- Hiển thị Top 3 sản phẩm bán chạy -->
         <h3>Top 3 Sản Phẩm Bán Chạy</h3>
         <table>
-            <tr>
-                <th>Sản phẩm</th>
-                <th>Số lượng bán</th>
-            </tr>
-            <th:block th:each="product : ${revenueReport[0].topProducts}">
+            <thead>
                 <tr>
-                    <td th:text="${product.key}"></td>
-                    <td th:text="${product.value}"></td>
+                    <th>Sản phẩm</th>
+                    <th>Số lượng bán</th>
                 </tr>
-            </th:block>
+            </thead>
+            <tbody>
+                <th:block th:if="${not #lists.isEmpty(revenueReport) and not #lists.isEmpty(revenueReport[0].topProducts)}">
+                    <tr th:each="product : ${revenueReport[0].topProducts}">
+                        <td th:text="${product.key}"></td>
+                        <td th:text="${product.value}"></td>
+                    </tr>
+                </th:block>
+                <th:block th:unless="${not #lists.isEmpty(revenueReport) and not #lists.isEmpty(revenueReport[0].topProducts)}">
+                    <tr>
+                        <td colspan="2" class="text-center text-muted">Không có sản phẩm bán chạy nào.</td>
+                    </tr>
+                </th:block>
+            </tbody>
         </table>
 
         <!-- Hiển thị Top 3 người dùng có nhiều đơn hàng nhất -->
         <h3>Top 3 Người Dùng Có Nhiều Đơn Hàng Nhất</h3>
         <table>
-            <tr>
-                <th>Người dùng</th>
-                <th>Số đơn hàng</th>
-            </tr>
-            <th:block th:each="user : ${revenueReport[0].topUsers}">
+            <thead>
                 <tr>
-                    <td th:text="${user.key}"></td>
-                    <td th:text="${user.value}"></td>
+                    <th>Người dùng</th>
+                    <th>Số đơn hàng</th>
                 </tr>
-            </th:block>
+            </thead>
+            <tbody>
+                <th:block th:if="${not #lists.isEmpty(revenueReport) and not #lists.isEmpty(revenueReport[0].topUsers)}">
+                    <tr th:each="user : ${revenueReport[0].topUsers}">
+                        <td th:text="${user.key}"></td>
+                        <td th:text="${user.value}"></td>
+                    </tr>
+                </th:block>
+                <th:block th:unless="${not #lists.isEmpty(revenueReport) and not #lists.isEmpty(revenueReport[0].topUsers)}">
+                    <tr>
+                        <td colspan="2" class="text-center text-muted">Không có người dùng nào nổi bật.</td>
+                    </tr>
+                </th:block>
+            </tbody>
         </table>
-
     </div>
 </body>
 </html>

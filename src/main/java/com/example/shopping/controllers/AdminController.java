@@ -1,7 +1,9 @@
 package com.example.shopping.controllers;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -10,16 +12,23 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
+import java.io.ByteArrayOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.shopping.dto.CouponDto;
 import com.example.shopping.dto.SalesReportDto;
@@ -32,6 +41,11 @@ import com.example.shopping.models.WarehouseReceiptForm;
 import com.example.shopping.services.*;
 import com.example.shopping.utils.CommonUtil;
 import com.example.shopping.utils.OrderEnum;
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -86,8 +100,8 @@ public class AdminController {
     //Phần category
     @GetMapping("/category")
     public String category(Model model, 
-                           @RequestParam(name = "pageNo", defaultValue = "0") int pageNo,
-                           @RequestParam(name = "pageSize", defaultValue = "5") int pageSize) {
+                           @RequestParam(defaultValue = "0") int pageNo,
+                           @RequestParam(defaultValue = "5") int pageSize) {
     
         Page<Category> page = categoryService.getAllCategoryPage(pageNo, pageSize);
         List<Category> categories = page.getContent();
@@ -123,7 +137,7 @@ public class AdminController {
                 session.setAttribute("errorMsg", "Lưu thất bại! Lỗi server !");
             } else {
                 // Chỉ định thư mục lưu trữ tệp
-                Path directoryPath = Paths.get("src/main/resources/static/img/category_img");
+                Path directoryPath = Path.of("src/main/resources/static/img/category_img");
                 if (!Files.exists(directoryPath)) {
                     Files.createDirectories(directoryPath); // Tạo thư mục nếu chưa tồn tại
                 }
@@ -165,7 +179,7 @@ public class AdminController {
     }
 
     @PostMapping("/updateCategory")
-    public String updateCategory(@ModelAttribute Category category, @RequestParam("file") MultipartFile file, HttpSession session) {
+    public String updateCategory(@ModelAttribute Category category, @RequestParam MultipartFile file, HttpSession session) {
         Category oldCategory = categoryService.getCategoryById(category.getId());
         String imageName = file.isEmpty() ? oldCategory.getImageName() : file.getOriginalFilename();
         String uploadDir = "src/main/resources/static/img/category_img";
@@ -179,15 +193,15 @@ public class AdminController {
         if (!file.isEmpty()) {
             try {
                 // Tạo thư mục nếu chưa tồn tại
-                Files.createDirectories(Paths.get(uploadDir));
+                Files.createDirectories(Path.of(uploadDir));
     
                 // Xóa hình ảnh cũ nếu không phải ảnh mặc định
                 if (!"default.jpg".equals(oldCategory.getImageName())) {
-                    Files.deleteIfExists(Paths.get(uploadDir, oldCategory.getImageName()));
+                    Files.deleteIfExists(Path.of(uploadDir, oldCategory.getImageName()));
                 }
     
                 // Lưu tệp hình ảnh mới vào thư mục tĩnh
-                file.transferTo(Paths.get(uploadDir, imageName));
+                file.transferTo(Path.of(uploadDir, imageName));
             } catch (IOException e) {
                 e.printStackTrace();
                 session.setAttribute("errorMsg", "Lưu hình ảnh không thành công !!!");
@@ -213,8 +227,8 @@ public class AdminController {
     @PostMapping("/saveProduct")
     public String saveProduct(@ModelAttribute Product product, @RequestParam("file") MultipartFile image, 
                               @RequestParam("category") String categoryName,
-                              @RequestParam("productTaxRate") double productTaxRate, 
-                              @RequestParam("profitMargin") double profitMargin, 
+                              @RequestParam double productTaxRate, 
+                              @RequestParam double profitMargin, 
                               HttpSession session) throws IOException {
     
         // Kiểm tra đầu vào của productTaxRate và profitMargin
@@ -269,7 +283,7 @@ public class AdminController {
     }    
     
     private void saveImage(MultipartFile image, String imageName, HttpSession session) throws IOException {
-        Path directoryPath = Paths.get("src/main/resources/static/img/product_img");
+        Path directoryPath = Path.of("src/main/resources/static/img/product_img");
         if (!Files.exists(directoryPath)) {
             Files.createDirectories(directoryPath); // Tạo thư mục nếu chưa tồn tại
         }
@@ -286,8 +300,8 @@ public class AdminController {
     
     @GetMapping("/productList")
     public String viewProduct(Model model, @RequestParam(defaultValue = "") String ch,
-                            @RequestParam(name = "pageNo", defaultValue = "0") int pageNo,
-                            @RequestParam(name = "pageSize", defaultValue = "5") int pageSize){
+                            @RequestParam(defaultValue = "0") int pageNo,
+                            @RequestParam(defaultValue = "5") int pageSize){
                                 
         Page<Product> page = null;
         if(ch!=null && ch.length()>0){
@@ -320,52 +334,63 @@ public class AdminController {
         return "redirect:/admin/productList";
     }
 
-    @GetMapping("/editProduct/{id}")
-    public String editProduct(Model model ,@PathVariable int id, HttpSession session){
-        model.addAttribute("product", productService.getProductByItem(id));
+@   GetMapping("/editProduct/{id}")
+    public String editProduct(Model model, @PathVariable Long id, HttpSession session) {
+        Product product = productService.getProductById(id);
+        if (product == null) {
+            session.setAttribute("errorMsg", "Sản phẩm không tồn tại!");
+            return "redirect:/admin/productList";
+        }
+        model.addAttribute("product", product);
         model.addAttribute("categories", categoryService.getAllCategories());
-
-        return "admin/edit_product";
+        return "admin/edit_product"; // Tên file HTML
     }
 
+    // Xử lý cập nhật sản phẩm
     @PostMapping("/updateProduct")
-    public String updateProduct(@ModelAttribute Product product, @RequestParam("file") MultipartFile image, HttpSession session){
+    public String updateProduct(@ModelAttribute Product product, @RequestParam("file") MultipartFile image, HttpSession session, RedirectAttributes redirectAttributes) {
+        // Kiểm tra ID
+        if (product.getId() == null) {
+            session.setAttribute("errorMsg", "ID sản phẩm không hợp lệ!");
+            return "redirect:/admin/productList";
+        }
 
-
+        // Kiểm tra tỷ lệ thuế
         if (product.getProductTaxRate() < 0 || product.getProductTaxRate() > 100) {
             session.setAttribute("errorMsg", "Tỷ lệ thuế sản phẩm không hợp lệ!");
             return "redirect:/admin/editProduct/" + product.getId();
         }
-    
+
+        // Kiểm tra tỷ lệ lợi nhuận
         if (product.getProfitMargin() < 0 || product.getProfitMargin() > 100) {
             session.setAttribute("errorMsg", "Tỷ lệ lợi nhuận không hợp lệ!");
             return "redirect:/admin/editProduct/" + product.getId();
         }
 
-        // Kiểm tra xem tên sản phẩm đã tồn tại chưa
-        if (productService.isProductTitleExist(product.getTitle())) {
+        // Kiểm tra tên sản phẩm đã tồn tại (trừ sản phẩm hiện tại)
+        Product existingProduct = productService.getProductByTitle(product.getTitle());
+        if (existingProduct != null && !existingProduct.getId().equals(product.getId())) {
             session.setAttribute("errorMsg", "Lỗi: Sản phẩm với tên này đã tồn tại.");
-            return "redirect:/admin/addProduct";
+            return "redirect:/admin/editProduct/" + product.getId();
         }
 
         product.setUpdateDate(LocalDateTime.now());
 
-        // Kiểm tra nếu phần trăm giảm giá hợp lệ
+        // Kiểm tra phần trăm giảm giá
         if (product.getDiscount() < 0 || product.getDiscount() > 100) {
             session.setAttribute("errorMsg", "Phần trăm giảm giá không hợp lệ !!!");
             return "redirect:/admin/editProduct/" + product.getId();
         } else {
-            // Cập nhật sản phẩm với thuế
             Product updatedProduct = productService.updateProduct(product, image);
-
-            if (!ObjectUtils.isEmpty(updatedProduct)) {
-                session.setAttribute("succMsg", "Cập nhập sản phẩm thành công !!!");
+            if (updatedProduct != null) {
+                session.setAttribute("succMsg", "Cập nhật sản phẩm thành công !!!");
             } else {
-                session.setAttribute("succMsg", "Cập nhập sản phẩm thất bại !!!");
+                session.setAttribute("errorMsg", "Cập nhật sản phẩm thất bại !!!");
             }
         }
 
-        return "redirect:/admin/editProduct/" + product.getId();
+        // Chuyển hướng về danh sách sản phẩm sau khi cập nhật
+        return "redirect:/admin/productList";
     }
 
     @GetMapping("/users")
@@ -390,8 +415,8 @@ public class AdminController {
     }
 
     @GetMapping("/orderList")
-    public String getAllOrders(Model model, @RequestParam(name = "pageNo", defaultValue = "0") int pageNo,
-                            @RequestParam(name = "pageSize", defaultValue = "5") int pageSize){
+    public String getAllOrders(Model model, @RequestParam(defaultValue = "0") int pageNo,
+                            @RequestParam(defaultValue = "5") int pageSize){
 
          
         Page<ProductOrder> page = orderService.getAllOrdersPage(pageNo, pageSize);
@@ -459,8 +484,8 @@ public class AdminController {
     }    
 
     @GetMapping("/search-order")
-    public String searchProduct(@RequestParam String orderId, Model model, HttpSession session, @RequestParam(name = "pageNo", defaultValue = "0") int pageNo,
-    @RequestParam(name = "pageSize", defaultValue = "5") int pageSize){
+    public String searchProduct(@RequestParam String orderId, Model model, HttpSession session, @RequestParam(defaultValue = "0") int pageNo,
+    @RequestParam(defaultValue = "5") int pageSize){
 
         if(orderId!=null && orderId.length()>0){
             ProductOrder order = orderService.getOrderByOrderid(orderId.trim());
@@ -498,7 +523,7 @@ public class AdminController {
     @PreAuthorize("hasAnyRole('ADMIN')")
     @PostMapping("/saveStaff")
     public String saveStaff(@ModelAttribute UserDtls user, @RequestParam("img") MultipartFile file, HttpSession session
-    , @RequestParam("confirmPassword") String confirmPassword) throws IOException {
+    , @RequestParam String confirmPassword) throws IOException {
 
             // Kiểm tra xem mật khẩu và xác nhận mật khẩu có khớp nhau không
         if (!user.getPassword().equals(confirmPassword)) {
@@ -515,7 +540,7 @@ public class AdminController {
 
         if (!ObjectUtils.isEmpty(savedUser)) {
             // Chỉ định thư mục lưu trữ tệp ảnh
-            Path directoryPath = Paths.get("src/main/resources/static/img/profile_img");
+            Path directoryPath = Path.of("src/main/resources/static/img/profile_img");
             if (!Files.exists(directoryPath)) {
                 Files.createDirectories(directoryPath); // Tạo thư mục nếu chưa tồn tại
             }
@@ -539,57 +564,135 @@ public class AdminController {
         return "redirect:/admin/add-staff";
     }
 
-    @GetMapping("/revenue")
-    public String revenue(@RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime startDate,
-                          @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime endDate,
-                          Model model) {
+@GetMapping("/revenue")
+    public String revenue(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            Model model) {
         // Nếu không nhập thời gian, lấy mặc định 1 năm gần nhất
-        if (startDate == null) {
-            startDate = LocalDateTime.now().minusMonths(12).withHour(0).withMinute(0).withSecond(0);
-        }
-        if (endDate == null) {
-            endDate = LocalDateTime.now().withHour(23).withMinute(59).withSecond(59);
-        }
-    
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        String formattedStartDate = startDate.toLocalDate().format(formatter);
-        String formattedEndDate = endDate.toLocalDate().format(formatter);
-    
+        LocalDateTime startDateTime = (startDate == null) 
+            ? LocalDateTime.now().minusMonths(12).withHour(0).withMinute(0).withSecond(0) 
+            : startDate.atStartOfDay();
+        LocalDateTime endDateTime = (endDate == null) 
+            ? LocalDateTime.now().withHour(23).withMinute(59).withSecond(59) 
+            : endDate.atTime(23, 59, 59);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formattedStartDate = startDateTime.toLocalDate().format(formatter);
+        String formattedEndDate = endDateTime.toLocalDate().format(formatter);
+
         // Lấy dữ liệu báo cáo doanh thu
-        List<SalesReportDto> revenueReport = orderService.generateSalesReport(startDate, endDate);
-    
+        List<SalesReportDto> revenueReport = orderService.generateSalesReport(startDateTime, endDateTime);
+
         // Đưa dữ liệu vào model để hiển thị trong view
         model.addAttribute("revenueReport", revenueReport);
         model.addAttribute("startDate", formattedStartDate);
         model.addAttribute("endDate", formattedEndDate);
-    
+
         return "/admin/revenue";
     }
-    
+
     @PostMapping("/revenue")
-    public String filterRevenue(@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-                                @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-                                Model model) {
+    public String filterRevenue(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            Model model) {
         // Chuyển đổi LocalDate sang LocalDateTime
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
-    
+
         // Lấy dữ liệu báo cáo doanh thu từ OrderService theo khoảng thời gian lọc
         List<SalesReportDto> revenueReport = orderService.generateSalesReport(startDateTime, endDateTime);
-    
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formattedStartDate = startDate.format(formatter);
+        String formattedEndDate = endDate.format(formatter);
+
         // Đưa dữ liệu vào model để hiển thị trong view
         model.addAttribute("revenueReport", revenueReport);
-        model.addAttribute("startDate", startDate);
-        model.addAttribute("endDate", endDate);
-    
-        return "/admin/revenue"; // Trả lại view với báo cáo đã lọc
+        model.addAttribute("startDate", formattedStartDate);
+        model.addAttribute("endDate", formattedEndDate);
+
+        return "/admin/revenue";
+    }
+
+    @GetMapping("/revenue/export")
+    public ResponseEntity<ByteArrayResource> exportRevenue(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
+
+        List<SalesReportDto> revenueReport = orderService.generateSalesReport(startDateTime, endDateTime);
+
+        // Tạo file PDF
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Document document = new Document();
+        try {
+            PdfWriter.getInstance(document, baos);
+            document.open();
+
+            document.add(new Paragraph("BÁO CÁO DOANH THU"));
+            document.add(new Paragraph("Từ ngày: " + startDate.toString() + " đến ngày: " + endDate.toString()));
+            document.add(new Paragraph("\n"));
+
+            // Bảng báo cáo doanh thu
+            PdfPTable table = new PdfPTable(3);
+            table.addCell("Ngày");
+            table.addCell("Tổng doanh thu");
+            table.addCell("Tổng số đơn hàng");
+            for (SalesReportDto report : revenueReport) {
+                table.addCell(report.getDate());
+                table.addCell(String.format("%.0f Đ", report.getTotalRevenue()));
+                table.addCell(String.valueOf(report.getTotalOrders()));
+            }
+            document.add(table);
+
+            // Top 3 sản phẩm bán chạy
+            if (!revenueReport.isEmpty() && revenueReport.get(0).getTopProducts() != null) {
+                document.add(new Paragraph("\nTop 3 Sản Phẩm Bán Chạy"));
+                PdfPTable productTable = new PdfPTable(2);
+                productTable.addCell("Sản phẩm");
+                productTable.addCell("Số lượng bán");
+                for (Map.Entry<String, Integer> product : revenueReport.get(0).getTopProducts()) {
+                    productTable.addCell(product.getKey());
+                    productTable.addCell(String.valueOf(product.getValue()));
+                }
+                document.add(productTable);
+            }
+
+            // Top 3 người dùng
+            if (!revenueReport.isEmpty() && revenueReport.get(0).getTopUsers() != null) {
+                document.add(new Paragraph("\nTop 3 Người Dùng Có Nhiều Đơn Hàng Nhất"));
+                PdfPTable userTable = new PdfPTable(2);
+                userTable.addCell("Người dùng");
+                userTable.addCell("Số đơn hàng");
+                for (Map.Entry<String, Integer> user : revenueReport.get(0).getTopUsers()) {
+                    userTable.addCell(user.getKey());
+                    userTable.addCell(String.valueOf(user.getValue()));
+                }
+                document.add(userTable);
+            }
+
+            document.close();
+        } catch (DocumentException e) {
+            e.printStackTrace();
+        }
+
+        // Trả về file PDF
+        ByteArrayResource resource = new ByteArrayResource(baos.toByteArray());
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=RevenueReport.pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .contentLength(baos.size())
+                .body(resource);
     }
     
     // Hiển thị danh sách phiếu nhập kho
     @GetMapping("/warehouseReportList")
     public String viewWarehouseReceiptsList(Model model, @RequestParam(defaultValue = "") String ch,
-        @RequestParam(name = "pageNo", defaultValue = "0") int pageNo,
-        @RequestParam(name = "pageSize", defaultValue = "5") int pageSize) {
+        @RequestParam(defaultValue = "0") int pageNo,
+        @RequestParam(defaultValue = "5") int pageSize) {
             Page<WarehouseReceiptForm> page = null;
 
         if(ch!=null && ch.length()>0){
@@ -649,8 +752,8 @@ public class AdminController {
 
     @GetMapping("/coupons")
     public String couponList(Model model, @RequestParam(defaultValue = "") String ch,
-        @RequestParam(name = "pageNo", defaultValue = "0") int pageNo,
-        @RequestParam(name = "pageSize", defaultValue = "5") int pageSize){
+        @RequestParam(defaultValue = "0") int pageNo,
+        @RequestParam(defaultValue = "5") int pageSize){
         
         Page<Coupon> page = null;
 
