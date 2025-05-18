@@ -40,5 +40,4 @@ public class WarehouseReceiptForm {
 
     @Transient
     private String formattedDate;
-
 }

@@ -28,4 +28,6 @@ public interface OrderService {
     public void handleStockAfterCancellation(ProductOrder order);
 
     public List<SalesReportDto> generateSalesReport(LocalDateTime startDate, LocalDateTime endDate);
+
+    public List<SalesReportDto> generateDailySalesReport(String month);
 }

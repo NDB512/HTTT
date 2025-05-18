@@ -10,7 +10,7 @@
 <body class="bg-light">
     <section>
         <!-- Đặt jQuery trước các thư viện khác sử dụng jQuery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
         <div class="container mt-5 p-5 bg-white shadow rounded">    
             <div class="row">
@@ -45,23 +45,24 @@
                                             <tbody>
                                                 <tr>
                                                     <td class="fw-bold">Tổng tiền sản phẩm</td>
-                                                    <td>[[${totalPrice}]] Đ</td>
+                                                    <td>[[${#numbers.formatInteger(totalPrice, 0, 'COMMA')}]] Đ</td>
                                                 </tr>
                                                 <tr>
                                                     <td class="fw-bold">Tiền vận chuyển</td>
                                                     <td>
-                                                        <span th:if="${deliveryPrice > 0}">[[${deliveryPrice}]] Đ</span>
+                                                        <span th:if="${deliveryPrice > 0}">[[${#numbers.formatInteger(deliveryPrice, 0, 'COMMA')}]] Đ</span>
+                                                        <span th:unless="${deliveryPrice > 0}">0 Đ</span>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td class="fw-bold">Giảm giá</td>
                                                     <td>
-                                                        <span th:text="${discount != null && discount > 0 ? discount + ' Đ' : '0 Đ'}"></span>
+                                                        <span th:text="${discount != null && discount > 0 ? #numbers.formatInteger(discount, 0, 'COMMA') + ' Đ' : '0 Đ'}"></span>
                                                     </td>
                                                 </tr>                                                
                                                 <tr class="table-dark">
                                                     <td class="fw-bold text-white">Tổng tiền thanh toán</td>
-                                                    <td class="text-white">[[${totalOrderPrice}]] Đ</td>
+                                                    <td class="text-white">[[${#numbers.formatInteger(totalOrderPrice, 0, 'COMMA')}]] Đ</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -100,7 +101,7 @@
                                 </div>
                             </form>
                             <p id="couponMessage" class="text-success mt-2" th:if="${discount > 0}">
-                                Bạn đã được giảm [[${discount}]] Đ với mã "[[${couponCode}]]"
+                                Bạn đã được giảm [[${#numbers.formatInteger(discount, 0, 'COMMA')}]] Đ với mã "[[${couponCode}]]"
                             </p>
                             <p id="couponError" class="text-danger mt-2" th:if="${error}">[[${error}]]</p>
                         </div>

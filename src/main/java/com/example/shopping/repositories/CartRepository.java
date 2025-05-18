@@ -14,6 +14,5 @@ public interface CartRepository extends JpaRepository<Cart, Integer>{
     @Query("SELECT c FROM Cart c WHERE c.user.id = :userId")
     public List<Cart> getCartsByUser(@Param("userId") int userId);
 
-
     public int countByUserId(int userId);
 }

@@ -1,0 +1,126 @@
+@startuml
+' Thiết lập giao diện
+skinparam monochrome true
+skinparam dpi 300
+
+' Định nghĩa các thực thể
+entity "UserDtls" {
+  * id : int <<PK>>
+  --
+  name : String
+  phoneNumber : String
+  email : String
+  password : String
+  role : String
+  isEnable : Boolean
+}
+
+entity "Address" {
+  * id : UUID <<PK>>
+  --
+  user_id : int <<FK>>
+  name : String
+  phoneNumber : String
+  street : String
+  ward : String
+  district : String
+  city : String
+  postalCode : String
+}
+
+entity "Cart" {
+  * id : int <<PK>>
+  --
+  user_id : int <<FK>>
+  product_id : int <<FK>>
+  quantity : int
+  size : String
+}
+
+entity "Product" {
+  * id : int <<PK>>
+  --
+  category_id : int <<FK>>
+  title : String
+  description : String
+  price : double
+  stock : int
+  image : String
+  discount : Double
+  isActive : Boolean
+}
+
+entity "Category" {
+  * id : int <<PK>>
+  --
+  name : String
+  imageName : String
+  isActive : Boolean
+}
+
+entity "Coupon" {
+  * id : Long <<PK>>
+  --
+  code : String
+  discountAmount : Double
+  discountPercentage : Double
+  status : CouponStatus
+}
+
+entity "ProductOrder" {
+  * id : int <<PK>>
+  --
+  user_id : int <<FK>>
+  address_id : UUID <<FK>>
+  coupon_id : Long <<FK>>
+  orderId : String
+  status : String
+  paymentType : String
+  totalOrderPrice : Double
+}
+
+entity "OrderItem" {
+  * id : int <<PK>>
+  --
+  product_id : int <<FK>>
+  order_id : int <<FK>>
+  price : double
+  quantity : int
+}
+
+entity "WarehouseReceiptForm" {
+  * id : int <<PK>>
+  --
+  warehouseReceiptId : String
+  type : WarehouseReceiptType
+  date : LocalDateTime
+}
+
+entity "WarehouseReceiptItem" {
+  * id : int <<PK>>
+  --
+  product_id : int <<FK>>
+  warehouse_receipt_id : int <<FK>>
+  quantity : int
+}
+
+' Định nghĩa các mối quan hệ
+UserDtls ||--o{ Address
+UserDtls ||--o{ Cart
+UserDtls ||--o{ ProductOrder
+Address ||--o{ ProductOrder
+Cart }o--|| Product
+Product ||--o{ OrderItem
+Product }o--|| Category
+ProductOrder ||--o{ OrderItem
+WarehouseReceiptForm ||--o{ WarehouseReceiptItem
+WarehouseReceiptItem }o--|| Product
+Coupon ||--o{ ProductOrder
+
+' Ghi chú
+note right of Product
+  Category là category_id
+  liên kết với Category
+end note
+
+@enduml

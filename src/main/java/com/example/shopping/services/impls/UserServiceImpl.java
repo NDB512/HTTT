@@ -194,7 +194,6 @@ public class UserServiceImpl implements UserService {
     //Cập nhật mã đặt lại mật khẩu (reset token) cho người dùng bằng email
     @Override
     public void updateUserResetToken(String email, String resetToken) {
-
         UserDtls userByEmail = userRepository.findByEmail(email);
         userByEmail.setResetToken(resetToken);
         userRepository.save(userByEmail);
@@ -262,5 +261,4 @@ public class UserServiceImpl implements UserService {
     public Boolean existsEmail(String email) {
         return userRepository.existsByEmail(email);
     }
-    
 }

@@ -56,7 +56,6 @@ public class ProductServiceImpl implements ProductService{
             productRepository.delete(product);
             return true;
         }
-
         return false;
     }
 

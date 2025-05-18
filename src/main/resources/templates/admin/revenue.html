@@ -1,144 +1,110 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:inline="javascript">
 <head>
     <meta charset="UTF-8">
-    <title>Doanh thu</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo doanh thu theo tháng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 20px;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f7fa;
         }
-
-        h1 {
-            text-align: center;
-            color: #333;
+        .container-fluid.header {
+            background: linear-gradient(135deg, #1e90ff, #0056b3);
+            color: white;
+            padding: 2rem;
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 2rem;
         }
-
-        h3 {
-            color: #333;
-            margin-top: 30px;
-        }
-
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background-color: #fff;
+            background: #fff;
             padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             border-radius: 8px;
         }
-
         .form-container {
             display: flex;
             justify-content: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
             gap: 10px;
+            margin-bottom: 20px;
         }
-
-        .form-container label {
-            font-size: 16px;
-            margin-right: 10px;
-        }
-
-        .form-container input, .form-container select {
-            padding: 8px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            margin-right: 10px;
-        }
-
         .form-container button {
             padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
             font-size: 16px;
             border: none;
-            border-radius: 4px;
+            border-radius: 5px;
             cursor: pointer;
+            background-color: #1e90ff;
+            color: white;
+            transition: background-color 0.3s ease;
         }
-
         .form-container button:hover {
-            background-color: #45a049;
-        }
-
-        .export-btn {
-            background-color: #007bff;
-        }
-
-        .export-btn:hover {
             background-color: #0056b3;
         }
-
         table {
             width: 100%;
             margin-top: 20px;
             border-collapse: collapse;
-            text-align: left;
         }
-
         table th, table td {
             padding: 12px;
             border: 1px solid #ddd;
+            text-align: right;
         }
-
-        table th {
-            background-color: #4CAF50;
+        table th:first-child, table td:first-child {
+            text-align: left;
+        }
+        table thead {
+            background: linear-gradient(135deg, #1e90ff, #0056b3);
             color: white;
         }
-
         table tr:nth-child(even) {
             background-color: #f2f2f2;
         }
-
         table tr:hover {
-            background-color: #ddd;
+            background-color: #e9ecef;
+            transition: background-color 0.3s ease;
         }
-
-        table td {
-            text-align: right;
+        .chart-container {
+            margin-top: 30px;
+            height: 400px;
         }
-
-        table td:first-child {
-            text-align: left;
+        h3 {
+            color: #333;
+            margin-top: 2rem;
+        }
+        .btn-secondary {
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
+    <div class="container-fluid header text-center">
+        <h1 class="display-4">Báo cáo doanh thu theo tháng</h1>
+    </div>
     <div class="container">
         <div class="d-flex justify-content-between mb-3">
-            <!-- Nút Quay về -->
-            <a href="/admin/" class="btn btn-secondary">Quay về</a>
-        </div>        
-        <h1>Báo cáo doanh thu</h1>
-
-        <!-- Form chọn khoảng thời gian -->
+            <a href="/admin/" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Quay về</a>
+        </div>
         <div class="form-container">
-            <form action="/admin/revenue" method="post">
-                <label for="startDate">Từ ngày:</label>
-                <input type="date" id="startDate" name="startDate" th:value="${startDate}" required>
-                
-                <label for="endDate">Đến ngày:</label>
-                <input type="date" id="endDate" name="endDate" th:value="${endDate}" required>
-                
-                <button type="submit">Xem báo cáo</button>
-            </form>
             <form th:action="@{/admin/revenue/export}" method="get">
                 <input type="hidden" name="startDate" th:value="${startDate}">
                 <input type="hidden" name="endDate" th:value="${endDate}">
-                <button type="submit" class="export-btn">Xuất PDF</button>
+                <button type="submit" class="btn">Xuất PDF</button>
             </form>
         </div>
-
-        <!-- Bảng hiển thị báo cáo doanh thu -->
+        <div class="chart-container">
+            <canvas id="revenueChart" style="width: 100%; height: 100%;"></canvas>
+        </div>
         <table>
             <thead>
                 <tr>
-                    <th>Ngày</th>
+                    <th>Tháng</th>
                     <th>Tổng doanh thu</th>
                     <th>Tổng số đơn hàng</th>
                 </tr>
@@ -146,7 +112,9 @@
             <tbody>
                 <th:block th:if="${not #lists.isEmpty(revenueReport)}">
                     <tr th:each="report : ${revenueReport}">
-                        <td th:text="${report.date}"></td>
+                        <td>
+                            <a th:href="@{/admin/revenue/month(month=${report.period})}" th:text="${report.period}"></a>
+                        </td>
                         <td th:text="${#numbers.formatInteger(report.totalRevenue, 0, 'COMMA')} + ' Đ'"></td>
                         <td th:text="${report.totalOrders}"></td>
                     </tr>
@@ -158,8 +126,6 @@
                 </th:block>
             </tbody>
         </table>
-
-        <!-- Hiển thị Top 3 sản phẩm bán chạy -->
         <h3>Top 3 Sản Phẩm Bán Chạy</h3>
         <table>
             <thead>
@@ -182,8 +148,6 @@
                 </th:block>
             </tbody>
         </table>
-
-        <!-- Hiển thị Top 3 người dùng có nhiều đơn hàng nhất -->
         <h3>Top 3 Người Dùng Có Nhiều Đơn Hàng Nhất</h3>
         <table>
             <thead>
@@ -207,5 +171,56 @@
             </tbody>
         </table>
     </div>
+    <script th:inline="javascript">
+        const revenueData = /*[[${revenueReport}]]*/ [];
+        const labels = revenueData.map(r => r.period);
+        const data = revenueData.map(r => r.totalRevenue);
+
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Doanh thu (Đ)',
+                    data: data,
+                    backgroundColor: 'rgba(75, 192, 192, 0.4)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Doanh thu (Đ)' },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString('vi-VN') + ' Đ';
+                            }
+                        }
+                    },
+                    x: {
+                        title: { display: true, text: 'Tháng' }
+                    }
+                },
+                plugins: {
+                    legend: { display: true, position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) label += ': ';
+                                label += context.parsed.y.toLocaleString('vi-VN') + ' Đ';
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>

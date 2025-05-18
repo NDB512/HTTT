@@ -43,7 +43,6 @@
                                     <th scope="col">Giá</th>
                                     <th scope="col">Số lượng</th>
                                     <th scope="col">Tổng giá</th>
-                                    <!-- <th scope="col"></th> -->
                                 </tr>
                             </thead>
                             <tbody>
@@ -51,26 +50,18 @@
                                     <th scope="row">[[${c.count}]]</th>
                                     <td><img th:src="@{'/img/product_img/'+${carts.product.image}}" height="120px" width="120px"></td>
                                     <td>[[${carts.product.title}]]</td>
-                                    <td>[[${carts.product.finalPrice * (1 - carts.product.discount / 100)}]] Đ</td>
+                                    <td>[[${#numbers.formatInteger(carts.product.finalPrice * (1 - carts.product.discount / 100), 0, 'COMMA')}]] Đ</td>
                                     <td>
                                         <a th:href="@{'/user/cartQuantityUpdate?sy=de&cid='+${carts.id}}"><i class="fa-solid fa-minus"></i></a> 
                                         [ [[${carts.quantity}]] ] 
                                         <a th:href="@{'/user/cartQuantityUpdate?sy=in&cid='+${carts.id}}"><i class="fa-solid fa-plus"></i></a>
                                     </td>
-                                    <td>[[${carts.totalPrice}]] Đ</td>
-                                    <!-- <td>
-                                        <a th:href="@{'/user/deleteCart/'+${carts.id}}" class="btn btn-sm btn-danger" onclick="return confirmDelete();"><i class="fa-solid fa-trash"></i> Xóa</a>
-                                    </td>
-                                    <script>
-                                        function confirmDelete() {
-                                            return confirm("Bạn có chắc chắn muốn xóa giỏ hàng này không?");
-                                        }
-                                    </script> -->
+                                    <td>[[${#numbers.formatInteger(carts.totalPrice, 0, 'COMMA')}]] Đ</td>
                                 </tr>
                                 <tr>
                                     <td colspan="4"></td>
                                     <td class="fw-bold">Tổng giá trị giỏ hàng: </td>
-                                    <td>[[${totalProductPrice}]] Đ</td>
+                                    <td>[[${#numbers.formatInteger(totalProductPrice, 0, 'COMMA')}]] Đ</td>
                                 </tr>
                             </tbody>
                         </table>

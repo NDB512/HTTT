@@ -25,4 +25,3 @@ public class OrderItem {
 
     private int quantity;
 }
-

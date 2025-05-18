@@ -26,6 +26,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -346,13 +347,28 @@ public class AdminController {
         return "admin/edit_product"; // Tên file HTML
     }
 
-    // Xử lý cập nhật sản phẩm
     @PostMapping("/updateProduct")
-    public String updateProduct(@ModelAttribute Product product, @RequestParam("file") MultipartFile image, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String updateProduct(@ModelAttribute Product product, 
+                               @RequestParam("file") MultipartFile image, 
+                               HttpSession session, 
+                               RedirectAttributes redirectAttributes, 
+                               BindingResult result) {
+
         // Kiểm tra ID
         if (product.getId() == null) {
             session.setAttribute("errorMsg", "ID sản phẩm không hợp lệ!");
             return "redirect:/admin/productList";
+        }
+
+        // Xử lý giá trị price (loại bỏ dấu phẩy và chuyển thành double)
+        String priceStr = String.valueOf(product.getPrice()).replace(",", "");
+        try {
+            double price = Double.parseDouble(priceStr);
+            product.setPrice(price); // Gán lại giá trị đã xử lý
+        } catch (NumberFormatException e) {
+            result.rejectValue("price", "error.price", "Giá không hợp lệ, vui lòng nhập số hợp lệ!");
+            session.setAttribute("errorMsg", "Giá không hợp lệ, vui lòng kiểm tra lại!");
+            return "redirect:/admin/editProduct/" + product.getId();
         }
 
         // Kiểm tra tỷ lệ thuế
@@ -564,7 +580,7 @@ public class AdminController {
         return "redirect:/admin/add-staff";
     }
 
-@GetMapping("/revenue")
+    @GetMapping("/revenue")
     public String revenue(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
@@ -616,6 +632,18 @@ public class AdminController {
         return "/admin/revenue";
     }
 
+    @GetMapping("/revenue/month")
+    public String revenueByMonth(
+            @RequestParam String month,
+            Model model) {
+        List<SalesReportDto> dailyReport = orderService.generateDailySalesReport(month);
+
+        model.addAttribute("dailyReport", dailyReport);
+        model.addAttribute("month", month);
+
+        return "/admin/revenue-month";
+    }
+
     @GetMapping("/revenue/export")
     public ResponseEntity<ByteArrayResource> exportRevenue(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -632,17 +660,17 @@ public class AdminController {
             PdfWriter.getInstance(document, baos);
             document.open();
 
-            document.add(new Paragraph("BÁO CÁO DOANH THU"));
+            document.add(new Paragraph("BÁO CÁO DOANH THU THEO THÁNG"));
             document.add(new Paragraph("Từ ngày: " + startDate.toString() + " đến ngày: " + endDate.toString()));
             document.add(new Paragraph("\n"));
 
             // Bảng báo cáo doanh thu
             PdfPTable table = new PdfPTable(3);
-            table.addCell("Ngày");
+            table.addCell("Tháng");
             table.addCell("Tổng doanh thu");
             table.addCell("Tổng số đơn hàng");
             for (SalesReportDto report : revenueReport) {
-                table.addCell(report.getDate());
+                table.addCell(report.getPeriod());
                 table.addCell(String.format("%.0f Đ", report.getTotalRevenue()));
                 table.addCell(String.valueOf(report.getTotalOrders()));
             }
@@ -784,8 +812,7 @@ public class AdminController {
     @PostMapping("/save-coupon")
     public String saveCoupon(Model model, @ModelAttribute CouponDto couponDto, HttpSession session){
         try {
-            couponService.createCoupon(couponDto);
-    
+            couponService.createCoupon(couponDto);   
             // Thêm thông báo thành công
             session.setAttribute("succMsg", "Phiếu đã được lưu thành công!");
         } catch (Exception e) {

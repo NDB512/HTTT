@@ -1,0 +1,38 @@
+@startuml
+' Thiết lập giao diện
+skinparam monochrome true
+skinparam dpi 300
+
+' Tiêu đề sơ đồ
+title Hệ thống quản lý bán hàng
+
+' Cấu trúc cây phân cấp
+[Hệ thống quản lý bán hàng] #..# [Quản lý tài khoản]
+[Hệ thống quản lý bán hàng] #..# [Quản lý sản phẩm]
+[Hệ thống quản lý bán hàng] #..# [Quản lý đơn hàng]
+[Hệ thống quản lý bán hàng] #..# [Quản lý tồn kho]
+[Hệ thống quản lý bán hàng] #..# [Báo cáo và phân tích]
+
+' Quy trình con cho Quản lý tài khoản
+[Quản lý tài khoản] #..# [Đăng ký tài khoản]
+[Quản lý tài khoản] #..# [Quản lý địa chỉ]
+
+' Quy trình con cho Quản lý sản phẩm
+[Quản lý sản phẩm] #..# [Tạo sản phẩm]
+[Quản lý sản phẩm] #..# [Tủy chỉnh sản phẩm]
+[Quản lý sản phẩm] #..# [Kích hoạt sản phẩm]
+
+' Quy trình con cho Quản lý đơn hàng
+[Quản lý đơn hàng] #..# [Tạo đơn hàng]
+[Quản lý đơn hàng] #..# [Áp dụng giảm giá]
+[Quản lý đơn hàng] #..# [Theo dõi đơn hàng]
+
+' Quy trình con cho Quản lý tồn kho
+[Quản lý tồn kho] #..# [Xuất kho]
+[Quản lý tồn kho] #..# [Nhập kho]
+
+' Quy trình con cho Báo cáo và phân tích
+[Báo cáo và phân tích] #..# [Báo cáo doanh thu]
+[Báo cáo và phân tích] #..# [Đồng bộ dữ liệu]
+
+@enduml

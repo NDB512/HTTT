@@ -11,5 +11,4 @@ import com.example.shopping.models.Address;
 public interface AddressRepository extends JpaRepository<Address, UUID>{
 
     List<Address> findAllByUserId(int userId);
-
 }

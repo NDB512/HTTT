@@ -9,7 +9,6 @@ import com.example.shopping.models.Coupon;
 
 @Repository
 public interface CouponRepository extends JpaRepository<Coupon, Integer> {
-
     Coupon findByCode(String code);
 
     Page<Coupon> findByCode(String ch, String ch2, Pageable pageable);

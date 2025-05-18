@@ -48,7 +48,7 @@
                             <tr th:each="o:${orders}">
                                 <th scope="row">[[${o.orderId}]]</th>
                                 <td>[[${o.orderedDay}]]</td>
-                                <td>[[${o.totalOrderPrice}]] Đ</td>
+                                <td>[[${#numbers.formatInteger(o.totalOrderPrice, 0, 'COMMA')}]] Đ</td>
                                 <td>[[${o.status}]]</td>
                                 <td>
                                     <!-- Nút Hiện Chi tiết -->

@@ -42,5 +42,4 @@ public class Coupon {
 
     // Điều kiện áp dụng
     private Double minimumOrderAmount; // Giá trị đơn hàng tối thiểu để áp dụng coupon
-
 }

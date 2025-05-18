@@ -82,6 +82,5 @@ public class CategoryServiceImpl implements CategoryService{
     public Page<Category> getAllCategoryPage(int pageNo, int pageSize) {
         Pageable pageable= PageRequest.of(pageNo, pageSize);
         return categoryRepository.findAll(pageable);
-    }
-    
+    }    
 }   
