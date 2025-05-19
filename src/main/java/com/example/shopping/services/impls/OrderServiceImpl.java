@@ -271,4 +271,9 @@ public class OrderServiceImpl implements OrderService{
 
         return salesReports;
     }
+
+    @Override
+    public long countPendingOrders() {
+        return productOrderRepository.countByStatus(OrderEnum.IN_PROGRESS.getName());
+    }
 }

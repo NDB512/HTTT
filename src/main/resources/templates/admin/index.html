@@ -49,7 +49,7 @@
                         <div class="card shadow">
                             <div class="cart-body text-center text-primary p-3">
                                 <i class="fa-solid fa-box-open fa-3x"></i>
-                                <h4>Đơn hàng</h4>
+                                <h4>Đơn hàng <span th:text="'(' + ${pendingOrderCount} + ' đơn cần xử lý)'" th:if="${pendingOrderCount > 0}"></span></h4>
                             </div>
                         </div>
                     </a>

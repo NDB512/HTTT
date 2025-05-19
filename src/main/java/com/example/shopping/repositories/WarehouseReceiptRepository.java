@@ -9,4 +9,8 @@ import com.example.shopping.models.WarehouseReceiptForm;
 public interface WarehouseReceiptRepository extends JpaRepository<WarehouseReceiptForm, Integer>{
     Page<WarehouseReceiptForm> findByWarehouseReceiptId(String ch, String ch2,
             Pageable pageable);
+
+    boolean existsBySupplierId(int id);
+
+    boolean existsBySupplier_Id(int id);
 }

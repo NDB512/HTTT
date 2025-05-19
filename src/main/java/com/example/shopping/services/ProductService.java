@@ -11,7 +11,7 @@ public interface ProductService {
 
     public Product saveProduct(Product product);
 
-    public List<Product> getAllProduct();
+    public List<Product> getAllProducts();
 
     public Boolean deleteProduct(int id);
 

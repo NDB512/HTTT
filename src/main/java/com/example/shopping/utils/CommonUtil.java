@@ -1,6 +1,8 @@
 package com.example.shopping.utils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.text.DecimalFormat;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -9,29 +11,34 @@ import org.springframework.stereotype.Component;
 
 import com.example.shopping.models.OrderItem;
 import com.example.shopping.models.ProductOrder;
+import com.lowagie.text.Document;
+import com.lowagie.text.Element;
+import com.lowagie.text.Font;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.Phrase;
+import com.lowagie.text.pdf.PdfWriter;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.util.ByteArrayDataSource;
 import jakarta.servlet.http.HttpServletRequest;
 
-// Lớp tiện ích để hỗ trợ các chức năng chung cho ứng dụng
 @Component
 public class CommonUtil {
 
     @Autowired
-    private JavaMailSender mailSender; // Đối tượng gửi mail
+    private JavaMailSender mailSender;
 
-    // Phương thức gửi email khôi phục mật khẩu
-    public Boolean sendMail(String url, String reciepentEmail) throws UnsupportedEncodingException, MessagingException{
-
-        // Tạo đối tượng MimeMessage để thiết lập nội dung email
+    public Boolean sendMail(String url, String recipientEmail) throws UnsupportedEncodingException, MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
 
         // Thiết lập người gửi và tên hiển thị
         helper.setFrom("nguyenduybao312@gmail.com", "Cửa hàng thời trang NDB");
         // Thiết lập người nhận email
-        helper.setTo(reciepentEmail);
+        helper.setTo(recipientEmail);
 
         // Tạo nội dung email với HTML bao gồm liên kết khôi phục mật khẩu
         String content = "<html><head><style>"
@@ -55,7 +62,7 @@ public class CommonUtil {
         + "<p><a href=\"" + url + "\">Thay đổi mật khẩu</a></p>"
         + "<div class='footer'>"
         + "<p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>"
-        + "<p>&copy; 2024 Cửa hàng thời trang NDB</p>"
+        + "<p>&copy; 2025 Cửa hàng thời trang NDB</p>"
         + "</div>"
         + "</div>"
         + "</body></html>";
@@ -77,87 +84,115 @@ public class CommonUtil {
 
     public Boolean sendOrderMail(ProductOrder productOrder, String status) {
         try {
-            // Tạo đối tượng MimeMessage để thiết lập nội dung email
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message);
-    
-            // Thiết lập người gửi và tên hiển thị
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setFrom("nguyenduybao312@gmail.com", "Cửa hàng thời trang NDB");
-    
-            // Thiết lập người nhận email
             helper.setTo(productOrder.getUser().getEmail());
-    
-            // Tạo nội dung email tùy theo trạng thái
-            StringBuilder msg = new StringBuilder();
-    
-            // CSS phần email thông báo đơn hàng
-            String css = "<style>"
-                    + "body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 0; background-color: #f4f4f4; }"
-                    + "h1, h2 { color: #333; font-size: 24px; font-weight: bold; }"
-                    + "p { font-size: 14px; color: #333; margin-bottom: 15px; }"
-                    + "table { width: 100%; border-collapse: collapse; background-color: #fff; margin-top: 20px; }"
-                    + "th, td { padding: 10px; border: 1px solid #ddd; text-align: left; font-size: 14px; }"
-                    + "th { background-color: #007bff; color: white; font-weight: bold; }"
-                    + "td { font-size: 14px; color: #333; }"
-                    + ".footer { font-size: 12px; color: #888; text-align: center; margin-top: 30px; padding: 15px; background-color: #f4f4f4; }"
-                    + ".highlight { color: #e74c3c; font-weight: bold; }"
-                    + "</style>";
-    
-            msg.append(css);
-            
-            if ("Đang xử lý".equals(status)) {
-                msg.append("<h1>Cảm ơn bạn đã đặt hàng tại cửa hàng thời trang NDB!</h1>")
-                   .append("<p>Mã đơn hàng: <strong>").append(productOrder.getOrderId()).append("</strong></p>")
-                   .append("<table border='1' cellpadding='5' cellspacing='0' style='width: 100%; background-color: #f9f9f9;'>")
-                   .append("<tr><th style='background-color: #007bff; color: white;'>Tên sản phẩm</th><th style='background-color: #007bff; color: white;'>Số lượng</th><th style='background-color: #007bff; color: white;'>Giá</th><th style='background-color: #007bff; color: white;'>Tổng giá</th></tr>");
-    
-                // Duyệt qua danh sách sản phẩm trong đơn hàng
-                for (OrderItem item : productOrder.getItems()) {
-                    msg.append("<tr>")
-                       .append("<td>").append(item.getProduct().getTitle()).append("</td>")
-                       .append("<td>").append(item.getQuantity()).append("</td>")
-                       .append("<td>").append(item.getPrice()).append(" Đ</td>")
-                       .append("<td>").append(item.getPrice() * item.getQuantity()).append(" Đ</td>")
-                       .append("</tr>");
-                }
-    
-                msg.append("</table>");
 
-                if (productOrder.getDiscount() != null && productOrder.getDiscount() > 0) {
-                    msg.append("<p>Tiền giảm: <strong>").append(productOrder.getDiscount()).append(" Đ</strong></p>");
-                } else {
-                    msg.append("<p>Tiền giảm: <strong>Không có</strong></p>");
-                }
-                
-                msg.append("<p>Tiền vận chuyển: <strong>").append(productOrder.getDeliveryPrice()).append(" Đ</strong></p>")
-                   .append("<p>Tổng giá trị: <strong>").append(productOrder.getTotalOrderPrice()).append(" Đ</strong></p>")
-                   .append("<p>Phương thức thanh toán: <strong>").append(productOrder.getPaymentType()).append("</strong></p>")
-                   .append("<p>Chúng tôi sẽ xử lý đơn hàng của bạn ngay lập tức!</p>");
-                
-                helper.setSubject("Hóa Đơn Đặt Hàng - Đang xử lý");                
-            } else if ("Hủy".equals(status)) {
-                // Nội dung email cho trạng thái "Hủy"
-                msg.append("<p>Xin chào!</p>")
-                   .append("<p>Chúng tôi rất tiếc phải thông báo rằng đơn hàng của bạn đã bị hủy.</p>")
-                   .append("<p>Đơn hàng mã: <strong>").append(productOrder.getOrderId()).append("</strong></p>")
-                   .append("<p>Hy vọng có cơ hội phục vụ bạn trong tương lai!</p>");
-    
-                helper.setSubject("Thông Báo Hủy Đơn Hàng");
+            // Tạo hóa đơn PDF
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            Document document = new Document();
+            PdfWriter.getInstance(document, baos);
+            document.open();
+
+            // Tiêu đề
+            Font titleFont = new Font(Font.HELVETICA, 16, Font.BOLD);
+            Paragraph title = new Paragraph("HÓA ĐƠN ĐẶT HÀNG - CỬA HÀNG NDB", titleFont);
+            title.setAlignment(Element.ALIGN_CENTER);
+            document.add(title);
+            document.add(new Paragraph(" "));
+
+            // Thông tin đơn hàng
+            document.add(new Paragraph("Mã đơn hàng: " + productOrder.getOrderId()));
+            document.add(new Paragraph("Ngày đặt: " + productOrder.getOrderedDay()));
+            document.add(new Paragraph(" "));
+
+            // Bảng sản phẩm dùng PdfPTable thay vì Table
+            PdfPTable table = new PdfPTable(4);
+            table.setWidthPercentage(100);
+            table.setWidths(new float[]{3f, 1f, 2f, 2f});
+            table.getDefaultCell().setPadding(5);
+
+            // Header
+            String[] headers = {"Tên sản phẩm", "Số lượng", "Giá", "Tổng giá"};
+            for (String header : headers) {
+                PdfPCell headerCell = new PdfPCell(new Phrase(header));
+                headerCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                headerCell.setPadding(5);
+                table.addCell(headerCell);
             }
-    
-            helper.setText(msg.toString(), true);
+
+            // Dữ liệu
+            for (OrderItem item : productOrder.getItems()) {
+                PdfPCell cell1 = new PdfPCell(new Phrase(item.getProduct().getTitle()));
+                cell1.setHorizontalAlignment(Element.ALIGN_LEFT);
+                cell1.setPadding(5);
+                table.addCell(cell1);
+
+                PdfPCell cell2 = new PdfPCell(new Phrase(String.valueOf(item.getQuantity())));
+                cell2.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cell2.setPadding(5);
+                table.addCell(cell2);
+
+                PdfPCell cell3 = new PdfPCell(new Phrase(formatCurrency(item.getPrice())));
+                cell3.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                cell3.setPadding(5);
+                table.addCell(cell3);
+
+                PdfPCell cell4 = new PdfPCell(new Phrase(formatCurrency(item.getPrice() * item.getQuantity())));
+                cell4.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                cell4.setPadding(5);
+                table.addCell(cell4);
+            }
+
+            document.add(table);
+            document.add(new Paragraph(" "));
+
+            // Thông tin thanh toán
+            document.add(new Paragraph("Tiền giảm: " +
+                    ((productOrder.getDiscount() != null && productOrder.getDiscount() > 0)
+                            ? formatCurrency(productOrder.getDiscount()) : "Không có")));
+
+            document.add(new Paragraph("Phí vận chuyển: " + formatCurrency(productOrder.getDeliveryPrice())));
+            document.add(new Paragraph("Tổng cộng: " + formatCurrency(productOrder.getTotalOrderPrice())));
+            document.add(new Paragraph("Thanh toán: " + productOrder.getPaymentType()));
+
+            document.close();
+
+            // Gửi email
+            helper.setSubject("Hóa đơn đơn hàng #" + productOrder.getOrderId());
+            helper.setText(
+                    "<p>Xin chào,</p>" +
+                            "<p>Cảm ơn bạn đã đặt hàng tại <strong>Cửa hàng thời trang NDB</strong>.</p>" +
+                            "<p>Vui lòng xem hóa đơn đính kèm.</p>" +
+                            "<p>Trân trọng,<br/>NDB Fashion Store</p>", true);
+
+            helper.addAttachment("HoaDon_" + productOrder.getOrderId() + ".pdf",
+                    new ByteArrayDataSource(baos.toByteArray(), "application/pdf"));
+
             mailSender.send(message);
-            return true; 
-        } catch (UnsupportedEncodingException | MessagingException e) {
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
+    }
+
+    /**
+     * Định dạng số tiền: thêm dấu phẩy, bỏ .0 nếu là số nguyên.
+     * Ví dụ: 1500000.0 ➝ 1,500,000 Đ
+     */
+    private String formatCurrency(double amount) {
+        DecimalFormat formatter = new DecimalFormat("#,##0.##");
+        return formatter.format(amount) + " Đ";
     }
         
     // Phương thức gửi OTP qua email
     public Boolean sendOtpEmail(String recipientEmail, String otp) throws UnsupportedEncodingException, MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
-    
+
         helper.setFrom("nguyenduybao312@gmail.com", "Cửa hàng thời trang NDB");
         helper.setTo(recipientEmail);
     
@@ -178,8 +213,6 @@ public class CommonUtil {
         helper.setSubject("Mã OTP xác nhận tài khoản");
         helper.setText(content, true);
         mailSender.send(message);
-    
-        return true; 
-    }    
-    
+        return true;
+    }
 }

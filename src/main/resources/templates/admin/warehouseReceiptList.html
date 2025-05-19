@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Danh sách phiếu nhập/xuất</title>
 </head>
 <body>
     <section>
@@ -16,6 +16,7 @@
                         <div class="card-body">
                             <div class="text-center mb-3">
                                 <a href="/admin/warehouseReceiptForm" class="btn btn-success">Tạo phiếu nhập/xuất</a>
+                                <a href="/admin/supplierList" class="btn btn-info">Danh sách nhà cung ứng</a>
                             </div>
                             <table class="table table-hover">
                                 <thead class="table-dark">
@@ -34,10 +35,7 @@
                                         <td th:text="${ware.formattedDate}"></td>
                                         <td th:text="${ware.type.name() == 'IMPORT' ? 'Nhập kho' : (ware.type.name() == 'EXPORT' ? 'Xuất kho' : '')}"></td>
                                         <td>
-                                            <!-- Nút Xem chi tiết mở modal và truyền thông tin phiếu -->
                                             <button class="btn btn-primary btn-sm" data-bs-toggle="modal" th:attr="data-bs-target='#receiptModal' + ${ware.id}">Xem chi tiết</button>
-                                            
-                                            <!-- Modal hiển thị chi tiết phiếu -->
                                             <div class="modal fade" th:id="'receiptModal' + ${ware.id}" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
                                                 <div class="modal-dialog modal-lg">
                                                     <div class="modal-content">
@@ -49,8 +47,8 @@
                                                             <p><strong>ID phiếu:</strong> <span th:text="${ware.warehouseReceiptId}"></span></p>
                                                             <p><strong>Ngày tạo:</strong> <span th:text="${ware.formattedDate}"></span></p>
                                                             <p><strong>Loại phiếu:</strong> <span th:text="${ware.type.name() == 'IMPORT' ? 'Nhập kho' : (ware.type.name() == 'EXPORT' ? 'Xuất kho' : '')}"></span></p>
+                                                            <p><strong>Nhà cung ứng:</strong> <span th:text="${ware.supplier?.name} ?: 'N/A'"></span></p>
                                                             <p><strong>Ghi chú:</strong> <span th:text="${ware.note}"></span></p>
-                                                            <!-- Hiển thị chi tiết các item trong phiếu -->
                                                             <h6>Danh sách mặt hàng</h6>
                                                             <ul>
                                                                 <li th:each="item : ${ware.items}">
@@ -85,7 +83,6 @@
                                     </nav>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>

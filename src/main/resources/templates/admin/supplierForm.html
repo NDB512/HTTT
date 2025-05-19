@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" th:replace="~{base::layout(~{::section})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${supplier.id} ? 'Sửa nhà cung ứng' : 'Thêm nhà cung ứng'"></title>
+</head>
+<body>
+    <section>
+        <div class="container p-5 mt-3">
+            <div class="row">
+                <div class="col-xl-8 col-lg-9 col-md-10 col-12 mx-auto">
+                    <div class="card shadow">
+                        <div class="card-header text-center position-relative">
+                            <p class="fs-4 m-0" th:text="${supplier.id} ? 'Sửa nhà cung ứng' : 'Thêm nhà cung ứng'"></p>
+                            <a href="/admin/supplierList" class="btn-close position-absolute" style="top: 10px; right: 10px;" aria-label="X"></a>
+
+                            <!-- Thông báo thành công -->
+                            <th:block th:if="${session.succMsg}">
+                                <p class="text-success fw-bold" th:text="${session.succMsg}"></p>
+                                <div th:with="commonService=${@commonServiceImpl}">
+                                    <div th:if="${commonService.removeSessionMessage()}"></div>
+                                </div>
+                            </th:block>
+
+                            <!-- Thông báo lỗi -->
+                            <th:block th:if="${session.errorMsg}">
+                                <p class="text-danger fw-bold" th:text="${session.errorMsg}"></p>
+                                <div th:with="commonService=${@commonServiceImpl}">
+                                    <div th:if="${commonService.removeSessionMessage()}"></div>
+                                </div>
+                            </th:block>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="${supplier.id} ? @{/admin/suppliers/{id}(id=${supplier.id})} : @{/admin/suppliers}" th:object="${supplier}" method="post">
+                                <div class="mb-3">
+                                    <label>Mã nhà cung ứng</label>
+                                    <input type="text" name="supplierCode" th:value="${supplier.supplierCode}" class="form-control" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label>Tên nhà cung ứng</label>
+                                    <input type="text" name="name" th:value="${supplier.name}" th:class="${#fields.hasErrors('name')} ? 'form-control is-invalid' : 'form-control'" required>
+                                    <div class="invalid-feedback" th:errors="*{name}"></div>
+                                </div>
+                                <div class="mb-3">
+                                    <label>Địa chỉ</label>
+                                    <input type="text" name="address" th:value="${supplier.address}" class="form-control">
+                                </div>
+                                <div class="mb-3">
+                                    <label>Điện thoại</label>
+                                    <input type="text" name="phone" th:value="${supplier.phone}" class="form-control">
+                                </div>
+                                <div class="mb-3">
+                                    <label>Email</label>
+                                    <input type="email" name="email" th:value="${supplier.email}" class="form-control">
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <button type="submit" class="btn btn-primary btn-lg w-100" th:text="${supplier.id} ? 'Cập nhật' : 'Thêm nhà cung ứng'"></button>
+                                    </div>
+                                    <div class="col-6">
+                                        <a href="/admin/supplierList" class="btn btn-danger btn-lg w-100">Hủy</a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

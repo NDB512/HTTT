@@ -37,6 +37,7 @@ import com.example.shopping.models.Category;
 import com.example.shopping.models.Coupon;
 import com.example.shopping.models.Product;
 import com.example.shopping.models.ProductOrder;
+import com.example.shopping.models.Supplier;
 import com.example.shopping.models.UserDtls;
 import com.example.shopping.models.WarehouseReceiptForm;
 import com.example.shopping.services.*;
@@ -78,8 +79,14 @@ public class AdminController {
     @Autowired
     private WarehouseReceiptService warehouseReceiptService;
 
+    @Autowired
+    private SupplierService supplierService;
+
     @GetMapping("/")
-    public String admin(){
+    public String admin(Model model) {
+        // Lấy số lượng đơn hàng cần xử lý
+        long pendingOrderCount = orderService.countPendingOrders();
+        model.addAttribute("pendingOrderCount", pendingOrderCount);
         return "admin/index";
     }
 
@@ -755,27 +762,85 @@ public class AdminController {
     }
 
     @GetMapping("/warehouseReceiptForm")
-    public String warehouseReceipts(){
+    public String warehouseReceipts(Model model) {
+        model.addAttribute("receiptForm", new WarehouseReceiptForm());
+        model.addAttribute("suppliers", supplierService.getAllSuppliers());
+        model.addAttribute("products", productService.getAllProducts());
         return "admin/warehouseReceiptForm";
     }
 
+    // Lưu phiếu nhập/xuất
     @PostMapping("/warehouse-receipts")
-    public String saveWarehouseReceipt(
-            @ModelAttribute WarehouseReceiptForm receiptForm,
-            HttpSession session) {
-    
+    public String saveWarehouseReceipt(@ModelAttribute WarehouseReceiptForm receiptForm,
+                                      HttpSession session) {
         try {
-            // Lưu phiếu nhập kho cùng với danh sách sản phẩm
             warehouseReceiptService.saveWarehouseReceiptForm(receiptForm);
-    
-            // Thêm thông báo thành công
             session.setAttribute("succMsg", "Phiếu đã được lưu thành công!");
         } catch (Exception e) {
-            // Thêm thông báo lỗi
             session.setAttribute("errorMsg", "Đã xảy ra lỗi: " + e.getMessage());
         }
-    
-        return "redirect:/admin/warehouseReceiptForm"; // Redirect đến trang sau khi lưu
+        return "redirect:/admin/warehouseReceiptForm";
+    }
+
+    // Supplier List
+    @GetMapping("/supplierList")
+    public String viewSupplierList(Model model) {
+        model.addAttribute("suppliers", supplierService.getAllSuppliers());
+        return "/admin/supplierList";
+    }
+
+    // Supplier Form (Create)
+    @GetMapping("/supplierForm")
+    public String supplierForm(Model model) {
+        model.addAttribute("supplier", new Supplier());
+        return "/admin/supplierForm";
+    }
+
+    // Save Supplier
+    @PostMapping("/suppliers")
+    public String saveSupplier(@ModelAttribute Supplier supplier, HttpSession session) {
+        try {
+            supplierService.saveSupplier(supplier);
+            session.setAttribute("succMsg", "Nhà cung ứng đã được lưu thành công!");
+        } catch (Exception e) {
+            session.setAttribute("errorMsg", "Đã xảy ra lỗi: " + e.getMessage());
+        }
+        return "redirect:/admin/supplierForm";
+    }
+
+    // Edit Supplier Form
+    @GetMapping("/supplierForm/{id}")
+    public String editSupplier(@PathVariable int id, Model model) {
+        Supplier supplier = supplierService.findById(id);
+        model.addAttribute("supplier", supplier);
+        return "/admin/supplierForm";
+    }
+
+    // Update Supplier
+    @PostMapping("/suppliers/{id}")
+    public String updateSupplier(@PathVariable int id,
+                                @ModelAttribute Supplier supplier,
+                                HttpSession session) {
+        try {
+            supplier.setId(id);
+            supplierService.updateSupplier(supplier);
+            session.setAttribute("succMsg", "Nhà cung ứng đã được cập nhật thành công!");
+        } catch (Exception e) {
+            session.setAttribute("errorMsg", "Đã xảy ra lỗi: " + e.getMessage());
+        }
+        return "redirect:/admin/supplierList";
+    }
+
+    // Delete Supplier
+    @GetMapping("/suppliers/delete/{id}")
+    public String deleteSupplier(@PathVariable int id, HttpSession session) {
+        try {
+            supplierService.deleteSupplier(id);
+            session.setAttribute("succMsg", "Nhà cung ứng đã được xóa thành công!");
+        } catch (Exception e) {
+            session.setAttribute("errorMsg", "Đã xảy ra lỗi: " + e.getMessage());
+        }
+        return "redirect:/admin/supplierList";
     }
 
     @GetMapping("/coupons")

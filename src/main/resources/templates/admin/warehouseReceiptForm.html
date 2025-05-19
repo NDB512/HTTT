@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -60,25 +60,31 @@
             </div>
 
             <div class="form-group">
-                <label for="date">Ngày:</label>
-                <input type="datetime-local" id="date" name="date" class="form-control" required>
+                <label for="note">Ghi Chú:</label>
+                <textarea id="note" name="note" rows="4" class="form-control"></textarea>
             </div>
 
             <div class="form-group">
-                <label for="note">Ghi Chú:</label>
-                <textarea id="note" name="note" rows="4" class="form-control"></textarea>
+                <label for="supplier">Nhà Cung Ứng (cho phiếu nhập):</label>
+                <select id="supplier" name="supplier.id" class="form-control">
+                    <option value="" disabled selected>--Chọn nhà cung ứng--</option>
+                    <option th:each="s : ${suppliers}" th:value="${s.id}" th:text="${s.name}"></option>
+                </select>
             </div>
 
             <h2>Danh Sách Sản Phẩm</h2>
             <div id="items">
                 <div class="item">
                     <div class="form-group">
-                        <label for="productId">ID Sản Phẩm:</label>
-                        <input type="number" name="items[0].product.id" class="form-control" required>
+                        <label for="product">Sản Phẩm:</label>
+                        <select name="items[0].product.id" class="form-control" required>
+                            <option value="" disabled selected>--Chọn sản phẩm--</option>
+                            <option th:each="p : ${products}" th:value="${p.id}" th:text="${p.title}"></option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="quantity">Số Lượng:</label>
-                        <input type="number" name="items[0].quantity" class="form-control" required>
+                        <input type="number" name="items[0].quantity" class="form-control" required min="1">
                     </div>
                     <button type="button" class="btn btn-danger" onclick="removeItem(this)">Xóa</button>
                 </div>
@@ -91,17 +97,6 @@
     </div>
 
     <script>
-        // Tự động điền ngày giờ hiện tại vào trường "date"
-        window.addEventListener('load', () => {
-            const dateInput = document.getElementById("date");
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            dateInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
-        });
 
         let itemCount = 1;
 
@@ -111,12 +106,15 @@
             newItemDiv.className = "item";
             newItemDiv.innerHTML = `
                 <div class="form-group">
-                    <label for="productId">ID Sản Phẩm:</label>
-                    <input type="number" name="items[${itemCount}].product.id" class="form-control" required>
+                    <label for="product">Sản Phẩm:</label>
+                    <select name="items[${itemCount}].product.id" class="form-control" required>
+                        <option value="" disabled selected>--Chọn sản phẩm--</option>
+                        <option th:each="p : ${products}" th:value="\${p.id}" th:text="\${p.title}"></option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="quantity">Số Lượng:</label>
-                    <input type="number" name="items[${itemCount}].quantity" class="form-control" required>
+                    <input type="number" name="items[${itemCount}].quantity" class="form-control" required min="1">
                 </div>
                 <button type="button" class="btn btn-danger" onclick="removeItem(this)">Xóa</button>
             `;

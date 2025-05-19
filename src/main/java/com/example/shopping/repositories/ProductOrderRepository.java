@@ -26,4 +26,6 @@ public interface ProductOrderRepository extends JpaRepository<ProductOrder, Inte
                                                        @Param("endDate") LocalDateTime endDate,
                                                        @Param("status") String status);
 
+    long countByStatus(String name);
+
 }

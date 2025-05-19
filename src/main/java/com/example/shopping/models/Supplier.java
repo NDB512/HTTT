@@ -1,7 +1,6 @@
 package com.example.shopping.models;
 
 import jakarta.persistence.*;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,26 +11,21 @@ import lombok.Setter;
 @Setter
 @Getter
 @Entity
-public class Cart {
+public class Supplier {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private UserDtls user;
+    @Column(nullable = false, unique = true)
+    private String supplierCode;
 
-    @ManyToOne
-    private Product product;
+    @Column(nullable = false)
+    private String name;
 
-    private int quantity;
+    private String address;
 
-    private String size;
+    private String phone;
 
-    @Transient
-    private Double totalPrice;
-
-    @Transient
-    private Double totalProductPrice;
+    private String email;
 }

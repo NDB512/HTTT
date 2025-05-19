@@ -69,6 +69,10 @@
     <div class="container">
         <div class="d-flex justify-content-between mb-3">
             <a href="/admin/revenue" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Quay về</a>
+            <!-- Nút xuất PDF -->
+            <a th:href="@{/admin/revenue/export(month=${month})}" class="btn btn-primary">
+                <i class="fa-solid fa-file-pdf"></i> Xuất PDF
+            </a>
         </div>
         <table>
             <thead>

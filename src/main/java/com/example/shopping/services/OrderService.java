@@ -30,4 +30,6 @@ public interface OrderService {
     public List<SalesReportDto> generateSalesReport(LocalDateTime startDate, LocalDateTime endDate);
 
     public List<SalesReportDto> generateDailySalesReport(String month);
+
+    public long countPendingOrders();
 }
